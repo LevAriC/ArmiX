@@ -9,9 +9,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] Character[] _characterTypes;
     [SerializeField] Grid _gameBoard;
 
+    [Header("Variables")]
+    [SerializeField] int _charactersPerPlayer;
+
     // Variables
     private bool _isRunning;
     private List<Tile> _spawnedGrid;
+    private List<Character> livingCharacters;
 
     // Properties
     public static GameManager Instance { get; private set; }
@@ -21,8 +25,8 @@ public class GameManager : MonoBehaviour
     {
         Instance = this;
         _isRunning = true;
-        _spawnedGrid = new List<Tile>();
         _gameBoard.BoardInit(transform);
+        livingCharacters = new List<Character>();
     }
 
     protected void Start()
@@ -30,14 +34,20 @@ public class GameManager : MonoBehaviour
         spawnCharacter();
     }
 
-    protected void FixedUpdate()
-    {
-
-    }
-
     private void spawnCharacter()
     {
-        var newCharacter = Instantiate(_characterTypes[0]);
-        _gameBoard.setOnBoard(0, 0, newCharacter);
+        for(int i = 0; i < _charactersPerPlayer * 2; i++)
+        {
+            var newCharacter = Instantiate(_characterTypes[0]);
+            livingCharacters.Add(newCharacter);
+            if (i < _charactersPerPlayer)
+            {
+                _gameBoard.setOnBoard(i, 0, newCharacter);
+            }
+            else
+            {
+                _gameBoard.setOnBoard(_gameBoard.getWidth - (i % _charactersPerPlayer) - 1, _gameBoard.getHeight - 1, newCharacter);
+            }
+        }
     }
 }

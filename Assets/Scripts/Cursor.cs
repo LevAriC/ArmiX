@@ -16,8 +16,8 @@ public class Cursor : MonoBehaviour
 
     protected void Start()
     {
-        maxX = GameManager.Instance.getBoard.getWidth;
-        maxY = GameManager.Instance.getBoard.getHeight;
+        maxX = GameManager.Instance.getBoard.getWidth - 1;
+        maxY = GameManager.Instance.getBoard.getHeight - 1;
         moveCursor(posX, posY);
     }
 

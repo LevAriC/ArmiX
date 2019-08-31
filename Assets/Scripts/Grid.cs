@@ -13,6 +13,9 @@ public class Grid : MonoBehaviour
     [SerializeField] int _height;
     [SerializeField] int _width;
 
+    [Header("Debug")]
+    [SerializeField] List<Vector2> _occupiedTiles;
+
     public int getHeight { get { return _height; } }
     public int getWidth { get { return _width; } }
 
@@ -21,6 +24,7 @@ public class Grid : MonoBehaviour
     protected void Awake()
     {
         _tilesOnBoard = new List<List<Tile>>();
+        _occupiedTiles = new List<Vector2>();
         for (int i = 0; i < _height; i++)
         {
             _tilesOnBoard.Add(new List<Tile>());
@@ -45,6 +49,15 @@ public class Grid : MonoBehaviour
     public void setOnBoard(int xPos, int yPos, Character character)
     {
         _tilesOnBoard[xPos][yPos].setOnTile(character);
+        _occupiedTiles.Add(new Vector2(xPos, yPos));
+    }
+
+    public void moveCharacter(int xPos, int yPos, Character character)
+    {
+        if (!(_occupiedTiles.Contains(new Vector2(xPos, yPos))))
+        {
+            setOnBoard(xPos, yPos, character);
+        }
     }
 
     public Tile getFromBoard(int xPos, int yPos)

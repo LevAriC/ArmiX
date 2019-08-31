@@ -506,11 +506,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8151947193500793728, guid: 59c8af5a55d75e448a542cc65f9fb3f1,
+    - target: {fileID: 2980479233593399060, guid: 59c8af5a55d75e448a542cc65f9fb3f1,
         type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.003
+      propertyPath: m_Materials.Array.size
+      value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 2980479233593399060, guid: 59c8af5a55d75e448a542cc65f9fb3f1,
+        type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 10308, guid: 0000000000000000f000000000000000, type: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 59c8af5a55d75e448a542cc65f9fb3f1, type: 3}
 --- !u!1001 &2719625427902864698
@@ -659,6 +664,16 @@ PrefabInstance:
       propertyPath: _gameBoard
       value: 
       objectReference: {fileID: 449687853}
+    - target: {fileID: 5717945561478356190, guid: d892b5a95b2bb97439b50c09c734be42,
+        type: 3}
+      propertyPath: charactersPerPlayer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5717945561478356190, guid: d892b5a95b2bb97439b50c09c734be42,
+        type: 3}
+      propertyPath: _charactersPerPlayer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d892b5a95b2bb97439b50c09c734be42, type: 3}
 --- !u!1001 &6138613894620882112
@@ -672,6 +687,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Grid
+      objectReference: {fileID: 0}
+    - target: {fileID: 6138613894197417453, guid: acabf7d91a023184a9cc689b28118578,
+        type: 3}
+      propertyPath: _height
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6138613894197417453, guid: acabf7d91a023184a9cc689b28118578,
+        type: 3}
+      propertyPath: _width
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6138613894197417454, guid: acabf7d91a023184a9cc689b28118578,
         type: 3}
