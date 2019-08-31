@@ -13,8 +13,10 @@ public class Grid : MonoBehaviour
     [SerializeField] int _height;
     [SerializeField] int _width;
 
-    private List<List<Tile>> _tilesOnBoard;
+    public int getHeight { get { return _height; } }
+    public int getWidth { get { return _width; } }
 
+    private List<List<Tile>> _tilesOnBoard;
 
     protected void Awake()
     {
@@ -32,17 +34,21 @@ public class Grid : MonoBehaviour
             for (int j = 0; j < _width; j++)
             {
                 var newTile = Instantiate(_testTile);
-                newTile.transform.parent = parent;
                 newTile.transform.Translate(new Vector3(parent.position.x + i, 0, parent.position.z + j));
-
                 _tilesOnBoard[i].Add(newTile);
+
                 newTile.transform.SetParent(_tileContainer);
             }
         }
     }
 
-    public void placeOnBoard(int xPos, int yPos, Character character)
+    public void setOnBoard(int xPos, int yPos, Character character)
     {
         _tilesOnBoard[xPos][yPos].setOnTile(character);
+    }
+
+    public Tile getFromBoard(int xPos, int yPos)
+    {
+        return _tilesOnBoard[xPos][yPos];
     }
 }

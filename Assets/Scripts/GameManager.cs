@@ -15,17 +15,18 @@ public class GameManager : MonoBehaviour
 
     // Properties
     public static GameManager Instance { get; private set; }
+    public Grid getBoard { get { return _gameBoard; } }
 
     protected void Awake()
     {
         Instance = this;
         _isRunning = true;
         _spawnedGrid = new List<Tile>();
+        _gameBoard.BoardInit(transform);
     }
 
     protected void Start()
     {
-        _gameBoard.BoardInit(transform);
         spawnCharacter();
     }
 
@@ -37,6 +38,6 @@ public class GameManager : MonoBehaviour
     private void spawnCharacter()
     {
         var newCharacter = Instantiate(_characterTypes[0]);
-        _gameBoard.placeOnBoard(0, 0, newCharacter);
+        _gameBoard.setOnBoard(0, 0, newCharacter);
     }
 }

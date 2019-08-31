@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] Tile _tile;
-
+    //[Header("References")]
+    //[SerializeField] Tile _tile;
 
     public void setOnTile(Character character)
     {
