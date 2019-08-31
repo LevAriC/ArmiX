@@ -5,8 +5,8 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] Tile[] tilesTypes;
-    //[SerializeField] Tile[] tilesTypes;
+    [SerializeField] Tile[] _tilesTypes;
+    [SerializeField] Character[] _characterTypes;
     [SerializeField] Grid _gameBoard;
 
     // Variables
@@ -21,5 +21,22 @@ public class GameManager : MonoBehaviour
         Instance = this;
         _isRunning = true;
         _spawnedGrid = new List<Tile>();
+    }
+
+    protected void Start()
+    {
+        _gameBoard.BoardInit(transform);
+        spawnCharacter();
+    }
+
+    protected void FixedUpdate()
+    {
+
+    }
+
+    private void spawnCharacter()
+    {
+        var newCharacter = Instantiate(_characterTypes[0]);
+        _gameBoard.placeOnBoard(0, 0, newCharacter);
     }
 }

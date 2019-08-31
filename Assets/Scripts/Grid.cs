@@ -13,13 +13,11 @@ public class Grid : MonoBehaviour
     [SerializeField] int _height;
     [SerializeField] int _width;
 
-    private Transform _transform;
     private List<List<Tile>> _tilesOnBoard;
 
 
     protected void Awake()
     {
-        _transform = this.transform;
         _tilesOnBoard = new List<List<Tile>>();
         for (int i = 0; i < _height; i++)
         {
@@ -27,20 +25,15 @@ public class Grid : MonoBehaviour
         }
     }
 
-    protected void Start()
-    {
-        BoardInit();
-    }
-
-    private void BoardInit()
+    public void BoardInit(Transform parent)
     {
         for(int i = 0; i < _height; i++)
         {
             for (int j = 0; j < _width; j++)
             {
                 var newTile = Instantiate(_testTile);
-                newTile.transform.Translate(new Vector3(i, j, 0));
-                newTile.transform.Rotate(new Vector3(90, 0, 0));
+                newTile.transform.parent = parent;
+                newTile.transform.Translate(new Vector3(parent.position.x + i, 0, parent.position.z + j));
 
                 _tilesOnBoard[i].Add(newTile);
                 newTile.transform.SetParent(_tileContainer);
@@ -48,23 +41,8 @@ public class Grid : MonoBehaviour
         }
     }
 
-    //    [Header("References")]
-
-
-
-    //    [SerializeField] Tile[] _grid;
-
-    //    //public float gridSize;
-    //    //public GameObject target;
-    //    //public GameObject structure;
-    //    //Vector3 truePos;
-
-    //    //void LateUpdate()
-    //    //{
-    //    //    truePos.x = Mathf.Floor(target.transform.position.x / gridSize) * gridSize;
-    //    //    truePos.y = Mathf.Floor(target.transform.position.y / gridSize) * gridSize;
-    //    //    truePos.z = Mathf.Floor(target.transform.position.z / gridSize) * gridSize;
-
-    //    //    structure.transform.position = truePos;
-    //    //}
+    public void placeOnBoard(int xPos, int yPos, Character character)
+    {
+        _tilesOnBoard[xPos][yPos].setOnTile(character);
+    }
 }

@@ -5,7 +5,11 @@ using UnityEngine;
 public class Character : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] GameObject characterType;
-    [SerializeField] Grid attackGrid;
+    [SerializeField] Grid _attackGrid;
+    //[SerializeField] GameObject characterType;
 
+    protected void Start()
+    {
+        _attackGrid.BoardInit(transform);
+    }
 }
