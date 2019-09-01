@@ -6,17 +6,17 @@ public class Tile : MonoBehaviour
 {
     //[Header("References")]
 
-    [SerializeField] Character _character;
+    //[SerializeField] Character _character;
     public bool isOccupied = false;
 
     public void setOnTile(Character character)
     {
-        if(isOccupied)
-        {
+        //if(isOccupied)
+        //{
 
-        }
-        _character = character;
+        //}
+        //_character = character;
         character.transform.position = transform.position;
-        isOccupied = true;
+        //isOccupied = true;
     }
 }

@@ -25,12 +25,12 @@ public class GameManager : MonoBehaviour
     {
         Instance = this;
         _isRunning = true;
-        _gameBoard.BoardInit(transform);
         livingCharacters = new List<Character>();
     }
 
     protected void Start()
     {
+        _gameBoard.BoardInit(transform);
         spawnCharacter();
     }
 

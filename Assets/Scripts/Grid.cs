@@ -14,7 +14,7 @@ public class Grid : MonoBehaviour
     [SerializeField] int _width;
 
     [Header("Debug")]
-    [SerializeField] List<Vector2> _occupiedTiles;
+    private List<Vector2> _occupiedTiles;
 
     public int getHeight { get { return _height; } }
     public int getWidth { get { return _width; } }
