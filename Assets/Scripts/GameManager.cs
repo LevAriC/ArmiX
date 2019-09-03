@@ -13,25 +13,37 @@ public class GameManager : MonoBehaviour
     [SerializeField] int _charactersPerPlayer;
 
     // Variables
-    private bool _isRunning;
-    private List<Tile> _spawnedGrid;
-    private List<Character> livingCharacters;
+    #region Menu
+    private bool _menuOpen;
+    private Vector2Int _whereClicked;
+    Character _characterClicked;
+    #endregion
+
+    #region Grid
+    private Dictionary<Vector2Int, Character> _characterDictionary;
+    public Grid getBoard { get { return _gameBoard; } }
+    #endregion
 
     // Properties
     public static GameManager Instance { get; private set; }
-    public Grid getBoard { get { return _gameBoard; } }
+
 
     protected void Awake()
     {
         Instance = this;
-        _isRunning = true;
-        livingCharacters = new List<Character>();
+        _menuOpen = false;
+        _characterDictionary = new Dictionary<Vector2Int, Character>();
     }
 
     protected void Start()
     {
-        _gameBoard.BoardInit(transform);
+        _gameBoard.GridInit(transform);
         spawnCharacter();
+    }
+
+    protected void Update()
+    {
+        menuController();
     }
 
     private void spawnCharacter()
@@ -39,15 +51,44 @@ public class GameManager : MonoBehaviour
         for(int i = 0; i < _charactersPerPlayer * 2; i++)
         {
             var newCharacter = Instantiate(_characterTypes[0]);
-            livingCharacters.Add(newCharacter);
             if (i < _charactersPerPlayer)
             {
                 _gameBoard.setOnBoard(i, 0, newCharacter);
+                _characterDictionary.Add(new Vector2Int(i, 0), newCharacter);
             }
             else
             {
+                newCharacter.transform.rotation = Quaternion.Euler(0, 180, 0);
                 _gameBoard.setOnBoard(_gameBoard.getWidth - (i % _charactersPerPlayer) - 1, _gameBoard.getHeight - 1, newCharacter);
+                _characterDictionary.Add(new Vector2Int(_gameBoard.getWidth - (i % _charactersPerPlayer) - 1, _gameBoard.getHeight - 1), newCharacter);
             }
         }
+    }
+
+    private void menuController()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && !_menuOpen)
+        {
+            _whereClicked = Cursor.cursorInstance.getCoords;
+            _characterClicked = _characterDictionary[_whereClicked];
+            if(_characterDictionary.ContainsKey(_whereClicked))
+            {
+                _menuOpen = true;
+                _characterClicked.showPossibleMove(_menuOpen);
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.Escape) && _menuOpen)
+        {
+            if (_characterDictionary.ContainsKey(_whereClicked))
+            {
+                _menuOpen = false;
+                _characterClicked.showPossibleMove(_menuOpen);
+            }
+        }
+    }
+
+    private void moveCharacter()
+    {
+        //_gameBoard.setOnBoard(cursorPos.x, cursorPos.y, toMove);
     }
 }

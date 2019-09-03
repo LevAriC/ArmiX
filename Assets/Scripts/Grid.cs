@@ -13,9 +13,6 @@ public class Grid : MonoBehaviour
     [SerializeField] int _height;
     [SerializeField] int _width;
 
-    [Header("Debug")]
-    private List<Vector2> _occupiedTiles;
-
     public int getHeight { get { return _height; } }
     public int getWidth { get { return _width; } }
 
@@ -24,21 +21,20 @@ public class Grid : MonoBehaviour
     protected void Awake()
     {
         _tilesOnBoard = new List<List<Tile>>();
-        _occupiedTiles = new List<Vector2>();
         for (int i = 0; i < _height; i++)
         {
             _tilesOnBoard.Add(new List<Tile>());
         }
     }
 
-    public void BoardInit(Transform parent)
+    public void GridInit(Transform parent)
     {
         for(int i = 0; i < _height; i++)
         {
             for (int j = 0; j < _width; j++)
             {
                 var newTile = Instantiate(_testTile);
-                newTile.transform.Translate(new Vector3(parent.position.x + i, 0, parent.position.z + j));
+                newTile.transform.Translate(new Vector3(parent.position.x + i, parent.position.y, parent.position.z + j));
                 _tilesOnBoard[i].Add(newTile);
 
                 newTile.transform.SetParent(_tileContainer);
@@ -49,15 +45,6 @@ public class Grid : MonoBehaviour
     public void setOnBoard(int xPos, int yPos, Character character)
     {
         _tilesOnBoard[xPos][yPos].setOnTile(character);
-        _occupiedTiles.Add(new Vector2(xPos, yPos));
-    }
-
-    public void moveCharacter(int xPos, int yPos, Character character)
-    {
-        if (!(_occupiedTiles.Contains(new Vector2(xPos, yPos))))
-        {
-            setOnBoard(xPos, yPos, character);
-        }
     }
 
     public Tile getFromBoard(int xPos, int yPos)

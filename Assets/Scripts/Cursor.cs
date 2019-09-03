@@ -8,8 +8,13 @@ public class Cursor : MonoBehaviour
     private int maxX, maxY;
     private Tile currentTile;
 
+    public static Cursor cursorInstance { get; private set; }
+
+    public Vector2Int getCoords { get { return cursorPosition(); } }
+
     protected void Awake()
     {
+        cursorInstance = this;
         posX = 0;
         posY = 0;
     }
@@ -23,7 +28,7 @@ public class Cursor : MonoBehaviour
 
     protected void Update()
     {
-        cursorController();
+        cursorMovement();
     }
 
     public void moveCursor(int x, int y)
@@ -32,7 +37,7 @@ public class Cursor : MonoBehaviour
         transform.position = currentTile.transform.position;
     }
 
-    private void cursorController()
+    private void cursorMovement()
     {
         if (Input.GetKeyDown(KeyCode.UpArrow) && posY < maxY)
         {
@@ -52,5 +57,10 @@ public class Cursor : MonoBehaviour
         }
 
         moveCursor(posX, posY);
+    }
+
+    private Vector2Int cursorPosition()
+    {
+        return new Vector2Int(posX, posY);
     }
 }

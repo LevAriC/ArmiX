@@ -6,8 +6,10 @@ public class Tile : MonoBehaviour
 {
     //[Header("References")]
 
-    //[SerializeField] Character _character;
+    private Character _character;
     public bool isOccupied = false;
+
+    public Character getCharacter { get { return _character; } }
 
     public void setOnTile(Character character)
     {
