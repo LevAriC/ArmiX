@@ -18,8 +18,8 @@ public class Character : MonoBehaviour
     [SerializeField] int _health;
 
     #region State
-    private int remainingHealth;
-    private bool movedThisTurn;
+    private bool _movedThisTurn;
+    public int remainingHealth { get { return remainingHealth; } set { remainingHealth = value; } }
     #endregion
 
     #region ID
@@ -27,16 +27,19 @@ public class Character : MonoBehaviour
     public int getCharacterID { get; private set; }
     #endregion
 
-    //[SerializeField] GameObject characterType;
+    #region Properties
+    public int getStrength { get { return _strength; } }
+    #endregion
 
     protected void Awake()
     {
-        movedThisTurn = false;
+        _movedThisTurn = false;
         ++_numOfCharacters;
         getCharacterID = _numOfCharacters;
         remainingHealth = _health;
-        _healthSlider.value = _health;
+        updateHUD();
     }
+
     protected void Start()
     {
         _attackGrid.GridInit(transform);
@@ -45,13 +48,22 @@ public class Character : MonoBehaviour
         _movementGrid.gameObject.SetActive(false);
     }
 
+    protected void FixedUpdate()
+    {
+        if(Menu.stateChanged)
+        {
+            updateHUD();
+            Menu.stateChanged = false;
+        }
+    }
+
     public void showPossibleMove(bool show)
     {
         _movementGrid.gameObject.SetActive(show);
     }
 
-    private void attackCharacter(Character enemyCharacter)
+    public void updateHUD()
     {
-
+        _healthSlider.value = remainingHealth;
     }
 }

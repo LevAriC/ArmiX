@@ -8,31 +8,24 @@ public class GameManager : MonoBehaviour
     [SerializeField] Tile[] _tilesTypes;
     [SerializeField] Character[] _characterTypes;
     [SerializeField] Grid _gameBoard;
+    [SerializeField] Menu _attackMenu;
 
     [Header("Variables")]
     [SerializeField] int _charactersPerPlayer;
 
-    // Variables
-    #region Menu
-    private bool _menuOpen;
-    private Vector2Int _whereClicked;
-    Character _characterClicked;
-    #endregion
-
     #region Grid
-    private Dictionary<Vector2Int, Character> _characterDictionary;
+    public Dictionary<Vector2Int, Character> _characterDictionary { get; private set; }
     public Grid getBoard { get { return _gameBoard; } }
     #endregion
 
     // Properties
     public static GameManager Instance { get; private set; }
 
-
     protected void Awake()
     {
         Instance = this;
-        _menuOpen = false;
         _characterDictionary = new Dictionary<Vector2Int, Character>();
+        _attackMenu = new Menu();
     }
 
     protected void Start()
@@ -43,7 +36,7 @@ public class GameManager : MonoBehaviour
 
     protected void Update()
     {
-        menuController();
+        _attackMenu.menuController();
     }
 
     private void spawnCharacter()
@@ -65,30 +58,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void menuController()
-    {
-        if (Input.GetKeyDown(KeyCode.Space) && !_menuOpen)
-        {
-            _whereClicked = Cursor.cursorInstance.getCoords;
-            _characterClicked = _characterDictionary[_whereClicked];
-            if(_characterDictionary.ContainsKey(_whereClicked))
-            {
-                _menuOpen = true;
-                _characterClicked.showPossibleMove(_menuOpen);
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.Escape) && _menuOpen)
-        {
-            if (_characterDictionary.ContainsKey(_whereClicked))
-            {
-                _menuOpen = false;
-                _characterClicked.showPossibleMove(_menuOpen);
-            }
-        }
-    }
-
-    private void moveCharacter()
-    {
-        //_gameBoard.setOnBoard(cursorPos.x, cursorPos.y, toMove);
-    }
+    //private void moveCharacter()
+    //{
+    //    _gameBoard.setOnBoard(_whereClicked.x, _whereClicked.y, _characterClicked);
+    //}
 }
