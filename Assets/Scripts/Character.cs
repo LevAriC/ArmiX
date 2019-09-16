@@ -18,13 +18,15 @@ public class Character : MonoBehaviour
     [SerializeField] int _health;
 
     #region State
-    private bool _movedThisTurn;
-    public int remainingHealth { get { return remainingHealth; } set { remainingHealth = value; } }
+    public bool movedThisTurn { get; set; }
+    public int remainingHealth { get; set; }
     #endregion
 
     #region ID
-    private static int _numOfCharacters = 0;
+    private static int _characterID = 0;
     public int getCharacterID { get; private set; }
+    public bool isRed { get; set; }
+    public bool isDead { get; private set; }
     #endregion
 
     #region Properties
@@ -33,9 +35,10 @@ public class Character : MonoBehaviour
 
     protected void Awake()
     {
-        _movedThisTurn = false;
-        ++_numOfCharacters;
-        getCharacterID = _numOfCharacters;
+        movedThisTurn = false;
+        isRed = false;
+        ++_characterID;
+        getCharacterID = _characterID;
         remainingHealth = _health;
         updateHUD();
     }
@@ -48,15 +51,6 @@ public class Character : MonoBehaviour
         _movementGrid.gameObject.SetActive(false);
     }
 
-    protected void FixedUpdate()
-    {
-        if(Menu.stateChanged)
-        {
-            updateHUD();
-            Menu.stateChanged = false;
-        }
-    }
-
     public void showPossibleMove(bool show)
     {
         _movementGrid.gameObject.SetActive(show);
@@ -65,5 +59,13 @@ public class Character : MonoBehaviour
     public void updateHUD()
     {
         _healthSlider.value = remainingHealth;
+    }
+
+    public void UpdateStatus()
+    {
+        if (remainingHealth <= 0)
+        {
+            isDead = true;
+        }
     }
 }

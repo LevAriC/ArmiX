@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] Character[] _characterTypes;
     [SerializeField] Grid _gameBoard;
     [SerializeField] Menu _attackMenu;
+    [SerializeField] Button _restartButton;
 
     [Header("Variables")]
     [SerializeField] int _charactersPerPlayer;
@@ -18,14 +20,23 @@ public class GameManager : MonoBehaviour
     public Grid getBoard { get { return _gameBoard; } }
     #endregion
 
-    // Properties
+    #region Turns Management
+    public bool IsRedTurn { get; private set; }
+    public bool GameOver { get; private set; }
+    private int leftThisTurn;
+    private int _blueLeft;
+    private int _redLeft;
+    private Vector2Int RIP;
+    #endregion
+
     public static GameManager Instance { get; private set; }
 
     protected void Awake()
     {
         Instance = this;
+        _restartButton.gameObject.SetActive(false);
+        TurnInit();
         _characterDictionary = new Dictionary<Vector2Int, Character>();
-        _attackMenu = new Menu();
     }
 
     protected void Start()
@@ -36,7 +47,15 @@ public class GameManager : MonoBehaviour
 
     protected void Update()
     {
-        _attackMenu.menuController();
+        if(!GameOver)
+        {
+            _attackMenu.menuController();
+            TurnManagement();
+        }
+        else if (GameOver)
+        {
+            _restartButton.gameObject.SetActive(true);
+        }
     }
 
     private void spawnCharacter()
@@ -46,11 +65,13 @@ public class GameManager : MonoBehaviour
             var newCharacter = Instantiate(_characterTypes[0]);
             if (i < _charactersPerPlayer)
             {
+                newCharacter.isRed = false;
                 _gameBoard.setOnBoard(i, 0, newCharacter);
                 _characterDictionary.Add(new Vector2Int(i, 0), newCharacter);
             }
             else
             {
+                newCharacter.isRed = true;
                 newCharacter.transform.rotation = Quaternion.Euler(0, 180, 0);
                 _gameBoard.setOnBoard(_gameBoard.getWidth - (i % _charactersPerPlayer) - 1, _gameBoard.getHeight - 1, newCharacter);
                 _characterDictionary.Add(new Vector2Int(_gameBoard.getWidth - (i % _charactersPerPlayer) - 1, _gameBoard.getHeight - 1), newCharacter);
@@ -58,6 +79,86 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void TurnManagement()
+    {
+        if (Menu.stateChanged)
+        {
+            if (leftThisTurn > 0)
+            {
+                foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+                {
+                    alive.Value.UpdateStatus();
+                    if (alive.Value.isDead)
+                    {
+                        if(!GameIsOver(alive.Value.isRed))
+                        {
+                            RIP = alive.Key;
+                            Destroy(alive.Value.gameObject);
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        alive.Value.updateHUD();
+                    }
+                }
+
+                if (RIP != new Vector2Int(-1, -1))
+                {
+                    _characterDictionary.Remove(RIP);
+                    RIP = new Vector2Int(-1, -1);
+                }
+
+                Menu.stateChanged = false;
+                leftThisTurn--;
+            }
+            if (leftThisTurn <= 0)
+            {
+                leftThisTurn = IsRedTurn ? _redLeft : _blueLeft;
+                IsRedTurn = !IsRedTurn;
+            }
+        }
+    }
+
+    private void TurnInit()
+    {
+        IsRedTurn = false;
+        GameOver = false;
+        leftThisTurn = _charactersPerPlayer;
+        _blueLeft = _charactersPerPlayer;
+        _redLeft = _charactersPerPlayer;
+        RIP = new Vector2Int(-1, -1);
+    }
+
+    private bool GameIsOver(bool red)
+    {
+        if (red)
+            _redLeft--;
+        else
+            _blueLeft--;
+
+        if (_redLeft <= 0 || _blueLeft <= 0)
+            return GameOver = true;
+
+        return false;
+    }
+
+    public void RestartGame()
+    {
+        TurnInit();
+        if(_characterDictionary != null)
+        {
+            foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+                Destroy(alive.Value.gameObject);
+        }
+
+        _characterDictionary = new Dictionary<Vector2Int, Character>();
+        spawnCharacter();
+        _restartButton.gameObject.SetActive(false); 
+    }
     //private void moveCharacter()
     //{
     //    _gameBoard.setOnBoard(_whereClicked.x, _whereClicked.y, _characterClicked);
