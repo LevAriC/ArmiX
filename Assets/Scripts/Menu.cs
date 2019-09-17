@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
@@ -9,6 +10,7 @@ public class Menu : MonoBehaviour
     [SerializeField] Combat _combatLogic;
     [SerializeField] Text _turnText;
     [SerializeField] Canvas _combatMenu;
+    [SerializeField] EventSystem _eventSystem;
 
     [SerializeField] Button _moveButton;
     [SerializeField] Button _attackButton;
@@ -26,17 +28,21 @@ public class Menu : MonoBehaviour
     public bool menuOpen { get; private set; }
     public static bool stateChanged { get; set; }
     public bool playerIsChoosing { get; set; }
+    public bool targetChoosed { get; set; }
     #endregion
 
     //public event Action OnMenuOpenedEvent;
     public event Action OnMovePressedEvent;
-    public event Action OnAttackPressedEvent;
+    //public event Action OnAttackPressedEvent;
     public event Action OnGuardPressedEvent;
 
     private void OnMoveClicked() { }
     private void OnAttackClicked()
     {
-        OnAttackPressedEvent?.Invoke();
+        _characterClicked.showPossibleMove(true);
+        ToggleMenu(false);
+        //OnAttackPressedEvent?.Invoke();
+        StartCoroutine(WaitUntilChosen());
     }
     private void OnGuardClicked() { }
 
@@ -48,6 +54,7 @@ public class Menu : MonoBehaviour
 
         ToggleMenu(false);
         playerIsChoosing = false;
+        targetChoosed = false;
         stateChanged = false; // Should be event
     }
 
@@ -66,14 +73,17 @@ public class Menu : MonoBehaviour
                 if (IsMyTurn())
                 {
                     ToggleMenu(true);
-                    //_combatMenu.gameObject.SetActive(true);
-                    //AttackCharacter();
                 }
                 else
                 {
                     _characterClicked = null;
                 }
             }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space) && !menuOpen && playerIsChoosing)
+        {
+            playerIsChoosing = false;
         }
 
         if (Input.GetKeyDown(KeyCode.Escape) && menuOpen)
@@ -118,51 +128,37 @@ public class Menu : MonoBehaviour
     private void ToggleMenu(bool open)
     {
         _combatMenu.gameObject.SetActive(open);
-
         if (open)
-        {
-            
-        }
-        else
-        {
-
-            if (_characterClicked)
-            {
-                _characterClicked.showPossibleMove(open);
-                _characterClicked = null;
-            }
-            if (_characterEnemyClicked)
-            {
-                _characterEnemyClicked.showPossibleMove(open);
-                _characterEnemyClicked = null;
-            }
-        }
-
-        menuOpen = _combatMenu.gameObject.activeInHierarchy;
+            _eventSystem.SetSelectedGameObject(_moveButton.gameObject);
+        menuOpen = open;
+        Debug.Log("Menu is " + menuOpen);
     }
 
     public void MoveCharacter()
     {
 
     }
-    public void AttackCharacter()
+
+    private IEnumerator WaitUntilChosen()
     {
-        _characterClicked.showPossibleMove(true);
         playerIsChoosing = true;
+        while (playerIsChoosing)
+        {
+            yield return null;
+        }
 
-        //_whereClicked = Cursor.cursorInstance.PlayerIsChoosingTarget();
-
-        var character = GameManager.Instance._characterDictionary[_whereClicked];
-        //if (_characterClicked && _characterClicked.getCharacterID == character.getCharacterID)
-        //{
-        //    ToggleMenu(false);
-        //    return;
-        //}
-
-        _characterEnemyClicked = character;
-        _combatLogic.attackEnemy(_characterClicked, _characterEnemyClicked);
+        if (IsCharacterHere())
+        {
+            var character = GameManager.Instance._characterDictionary[_whereClicked];
+            _characterEnemyClicked = character;
+            _combatLogic.attackEnemy(_characterClicked, _characterEnemyClicked);
+        }
         stateChanged = true;
-        //_combatMenu.gameObject.SetActive(false);
+        _characterClicked.showPossibleMove(false);
+        _characterClicked = null;
+        _characterEnemyClicked.showPossibleMove(false);
+        _characterEnemyClicked = null;
+        playerIsChoosing = false;
         ToggleMenu(false);
     }
 }

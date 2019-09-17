@@ -25,11 +25,10 @@ public class Cursor : MonoBehaviour
 
     protected void Start()
     {
+        //_mainMenu.OnAttackPressedEvent += () => StartCoroutine(PlayerChoosingTarget());
         maxX = GameManager.Instance.getBoard.getWidth - 1;
         maxY = GameManager.Instance.getBoard.getHeight - 1;
         moveCursor(posX, posY);
-        _mainMenu.OnAttackPressedEvent += PlayerChoosingTarget;
-
     }
 
     protected void Update()
@@ -45,57 +44,85 @@ public class Cursor : MonoBehaviour
 
     private void cursorMovement()
     {
-        if (_mainMenu.menuOpen)
+        if (!_mainMenu.menuOpen && !_mainMenu.playerIsChoosing)
         {
             if (Input.GetKeyDown(KeyCode.UpArrow) && posY < maxY)
-            {
                 posY += 1;
-            }
             if (Input.GetKeyDown(KeyCode.DownArrow) && posY > 0)
-            {
                 posY -= 1;
-            }
             if (Input.GetKeyDown(KeyCode.LeftArrow) && posX > 0)
-            {
                 posX -= 1;
-            }
             if (Input.GetKeyDown(KeyCode.RightArrow) && posX < maxX)
-            {
                 posX += 1;
+
+            if (restrictedList != null)
+            {
+                restrictedList = null;
+                restrictedListIndex = -1;
+            }
+        }
+
+        if (_mainMenu.playerIsChoosing)
+        {
+            if (restrictedList == null)
+            {
+                restrictedList = new List<Vector2Int>(GameManager.Instance.GetAllEnemiesOrAllies());
+                restrictedListIndex = 0;
             }
 
-        moveCursor(posX, posY);
-        }
-    }
-
-    private IEnumerator PlayerChoosingTarget()
-    {
-        if (restrictedList == null)
-        {
-            restrictedList = new List<Vector2Int>(GameManager.Instance.GetAllEnemiesOrAllies());
-            restrictedListIndex = 0;
-        }
-        while (_mainMenu.playerIsChoosing)
-        {
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
-                restrictedListIndex--;
-                break;
+                if (restrictedListIndex == 0)
+                    restrictedListIndex = restrictedList.Count - 1;
+                else
+                    restrictedListIndex--;
             }
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
-                restrictedListIndex++;
-                break;
+                if (restrictedListIndex == restrictedList.Count - 1)
+                    restrictedListIndex = 0;
+                else
+                    restrictedListIndex++;
             }
 
-            restrictedListIndex %= restrictedList.Count - 1;
             posX = restrictedList[restrictedListIndex].x;
             posY = restrictedList[restrictedListIndex].y;
-
-            moveCursor(posX, posY);
-            yield return null;
         }
+
+        moveCursor(posX, posY);
     }
+
+    //private IEnumerator PlayerChoosingTarget()
+    //{
+    //    Debug.Log("Haleluja?");
+    //    if (restrictedList == null)
+    //    {
+    //        restrictedList = new List<Vector2Int>(GameManager.Instance.GetAllEnemiesOrAllies());
+    //        restrictedListIndex = 0;
+    //    }
+    //    //while (_mainMenu.playerIsChoosing)
+    //    //{
+    //    //    if (Input.GetKeyDown(KeyCode.LeftArrow))
+    //    //    {
+    //    //        restrictedListIndex--;
+    //    //        break;
+    //    //    }
+    //    //    if (Input.GetKeyDown(KeyCode.RightArrow))
+    //    //    {
+    //    //        restrictedListIndex++;
+    //    //        break;
+    //    //    }
+
+    //    //    restrictedListIndex %= restrictedList.Count - 1;
+    //    //    posX = restrictedList[restrictedListIndex].x;
+    //    //    posY = restrictedList[restrictedListIndex].y;
+
+    //    //    moveCursor(posX, posY);
+    //    //}
+    //        yield return null;
+
+    //    //_mainMenu.playerIsChoosing = false;
+    //}
 
     private Vector2Int cursorPosition()
     {

@@ -84,7 +84,7 @@ public class GameManager : MonoBehaviour
         List<Vector2Int> tmpList = new List<Vector2Int>();
         foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
         {
-            if (alive.Value.isRed && IsRedTurn)
+            if (!alive.Value.isRed && IsRedTurn)
             {
                 tmpList.Add(alive.Key);
             }
