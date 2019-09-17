@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Grid : MonoBehaviour
+public class Surface : MonoBehaviour
 {
     [SerializeField] Transform _tileContainer;
 
@@ -27,7 +27,7 @@ public class Grid : MonoBehaviour
         }
     }
 
-    public void GridInit(Transform parent)
+    public void SurfaceInit(Transform parent)
     {
         for(int i = 0; i < _height; i++)
         {

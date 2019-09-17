@@ -8,8 +8,8 @@ public class Character : MonoBehaviour
     public enum CharacterTypes { MachineGun, Sniper, Agent };
 
     [Header("References")]
-    [SerializeField] Grid _attackGrid;
-    [SerializeField] Grid _movementGrid;
+    [SerializeField] Surface _attackSurface;
+    [SerializeField] Surface _movementSurface;
     [SerializeField] Slider _healthSlider;
 
     [Header("Variables")]
@@ -45,15 +45,15 @@ public class Character : MonoBehaviour
 
     protected void Start()
     {
-        _attackGrid.GridInit(transform);
-        _attackGrid.gameObject.SetActive(false);
-        _movementGrid.GridInit(transform);
-        _movementGrid.gameObject.SetActive(false);
+        _attackSurface.SurfaceInit(transform);
+        _attackSurface.gameObject.SetActive(false);
+        _movementSurface.SurfaceInit(transform);
+        _movementSurface.gameObject.SetActive(false);
     }
 
     public void showPossibleMove(bool show)
     {
-        _movementGrid.gameObject.SetActive(show);
+        _attackSurface.gameObject.SetActive(show);
     }
 
     public void updateHUD()

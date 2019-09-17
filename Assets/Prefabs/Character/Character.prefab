@@ -337,8 +337,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ffbe756fc40ded4fa074e4f0231195c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _attackGrid: {fileID: 754951930}
-  _movementGrid: {fileID: 5003169899260980827}
+  _attackSurface: {fileID: 754951930}
+  _movementSurface: {fileID: 5003169899260980827}
   _healthSlider: {fileID: 1517416596373999492}
   _characterType: 0
   _strength: 2

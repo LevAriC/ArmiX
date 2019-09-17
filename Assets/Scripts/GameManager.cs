@@ -8,16 +8,16 @@ public class GameManager : MonoBehaviour
     [Header("References")]
     [SerializeField] Tile[] _tilesTypes;
     [SerializeField] Character[] _characterTypes;
-    [SerializeField] Grid _gameBoard;
+    [SerializeField] Surface _gameBoard;
     [SerializeField] Menu _attackMenu;
     [SerializeField] Button _restartButton;
 
     [Header("Variables")]
     [SerializeField] int _charactersPerPlayer;
 
-    #region Grid
+    #region Surface
     public Dictionary<Vector2Int, Character> _characterDictionary { get; private set; }
-    public Grid getBoard { get { return _gameBoard; } }
+    public Surface getBoard { get { return _gameBoard; } }
     #endregion
 
     #region Turns Management
@@ -27,6 +27,12 @@ public class GameManager : MonoBehaviour
     private int _blueLeft;
     private int _redLeft;
     private Vector2Int RIP;
+    #endregion
+
+    #region Click Detectors
+    public Vector2Int _whereClicked { get; private set; }
+    public Character _characterClicked { get; set; }
+    public Character _characterEnemyClicked { get; set; }
     #endregion
 
     public static GameManager Instance { get; private set; }
@@ -41,8 +47,9 @@ public class GameManager : MonoBehaviour
 
     protected void Start()
     {
-        _gameBoard.GridInit(transform);
+        _gameBoard.SurfaceInit(transform);
         spawnCharacter();
+        _attackMenu.OnMovePressedEvent += () => PlayerMoveCharacter();
     }
 
     protected void Update()
@@ -177,8 +184,22 @@ public class GameManager : MonoBehaviour
         spawnCharacter();
         _restartButton.gameObject.SetActive(false); 
     }
-    //private void moveCharacter()
-    //{
-    //    _gameBoard.setOnBoard(_whereClicked.x, _whereClicked.y, _characterClicked);
-    //}
+
+    public bool IsCharacterHere()
+    {
+        _whereClicked = Cursor.cursorInstance.getCoords;
+        bool isCharHere = _characterDictionary.ContainsKey(_whereClicked) ? true : false;
+        return isCharHere;
+    }
+
+    private void PlayerMoveCharacter()
+    {
+        //foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+        //{
+        //    if(alive.Key == _whereClicked)
+        //}
+        //    _characterClicked = _characterDictionary[_whereClicked];
+        _gameBoard.setOnBoard(_whereClicked.x, _whereClicked.y, _characterClicked);
+
+    }
 }

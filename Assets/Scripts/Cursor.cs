@@ -25,7 +25,6 @@ public class Cursor : MonoBehaviour
 
     protected void Start()
     {
-        //_mainMenu.OnAttackPressedEvent += () => StartCoroutine(PlayerChoosingTarget());
         maxX = GameManager.Instance.getBoard.getWidth - 1;
         maxY = GameManager.Instance.getBoard.getHeight - 1;
         moveCursor(posX, posY);

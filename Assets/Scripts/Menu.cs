@@ -18,12 +18,6 @@ public class Menu : MonoBehaviour
 
     public string setTurnText { set { _turnText.GetComponent<Text>().text = value; } }
 
-    #region Click Detectors
-    private Vector2Int _whereClicked;
-    private Character _characterClicked;
-    private Character _characterEnemyClicked;
-    #endregion
-
     #region Boolians
     public bool menuOpen { get; private set; }
     public static bool stateChanged { get; set; }
@@ -31,20 +25,41 @@ public class Menu : MonoBehaviour
     public bool targetChoosed { get; set; }
     #endregion
 
-    //public event Action OnMenuOpenedEvent;
+    public event Action OnMenuOpenedEvent;
     public event Action OnMovePressedEvent;
     //public event Action OnAttackPressedEvent;
     public event Action OnGuardPressedEvent;
 
-    private void OnMoveClicked() { }
+    private bool moveRoutine;
+    private bool attackRoutine;
+    private bool guardRoutine;
+
+    private void OnMoveClicked()
+    {
+        moveRoutine = true;
+        ToggleMenu(false);
+        OnMovePressedEvent?.Invoke();
+        StartCoroutine(WaitUntilChosen());
+    }
     private void OnAttackClicked()
     {
-        _characterClicked.showPossibleMove(true);
+        attackRoutine = true;
+        GameManager.Instance._characterClicked.showPossibleMove(true);
         ToggleMenu(false);
         //OnAttackPressedEvent?.Invoke();
         StartCoroutine(WaitUntilChosen());
     }
-    private void OnGuardClicked() { }
+    private void OnGuardClicked()
+    {
+        guardRoutine = true;
+    }
+
+    private void RoutinesReset()
+    {
+        moveRoutine = false;
+        attackRoutine = false;
+        guardRoutine = false;
+    }
 
     protected void Awake()
     {
@@ -53,9 +68,9 @@ public class Menu : MonoBehaviour
         _guardButton.onClick.AddListener(OnGuardClicked);
 
         ToggleMenu(false);
-        playerIsChoosing = false;
         targetChoosed = false;
         stateChanged = false; // Should be event
+        RoutinesReset();
     }
 
     protected void FixedUpdate()
@@ -67,16 +82,16 @@ public class Menu : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && !menuOpen && !playerIsChoosing)
         {
-            if (IsCharacterHere())
+            if (GameManager.Instance.IsCharacterHere())
             {
-                _characterClicked = GameManager.Instance._characterDictionary[_whereClicked];
+                GameManager.Instance._characterClicked = GameManager.Instance._characterDictionary[GameManager.Instance._whereClicked];
                 if (IsMyTurn())
                 {
                     ToggleMenu(true);
                 }
                 else
                 {
-                    _characterClicked = null;
+                    GameManager.Instance._characterClicked = null;
                 }
             }
         }
@@ -92,16 +107,9 @@ public class Menu : MonoBehaviour
         }
     }
 
-    private bool IsCharacterHere()
-    {
-        _whereClicked = Cursor.cursorInstance.getCoords;
-        bool isCharHere = GameManager.Instance._characterDictionary.ContainsKey(_whereClicked)? true : false;
-        return isCharHere;
-    }
-
     private bool IsMyTurn()
     {
-        if (_characterClicked && _characterClicked.isRed == GameManager.Instance.IsRedTurn)
+        if (GameManager.Instance._characterClicked && GameManager.Instance._characterClicked.isRed == GameManager.Instance.IsRedTurn)
             return true;
         else
             return false;
@@ -131,12 +139,6 @@ public class Menu : MonoBehaviour
         if (open)
             _eventSystem.SetSelectedGameObject(_moveButton.gameObject);
         menuOpen = open;
-        Debug.Log("Menu is " + menuOpen);
-    }
-
-    public void MoveCharacter()
-    {
-
     }
 
     private IEnumerator WaitUntilChosen()
@@ -147,18 +149,23 @@ public class Menu : MonoBehaviour
             yield return null;
         }
 
-        if (IsCharacterHere())
+        if (attackRoutine)
         {
-            var character = GameManager.Instance._characterDictionary[_whereClicked];
-            _characterEnemyClicked = character;
-            _combatLogic.attackEnemy(_characterClicked, _characterEnemyClicked);
+            if (GameManager.Instance.IsCharacterHere())
+            {
+                var character = GameManager.Instance._characterDictionary[GameManager.Instance._whereClicked];
+                GameManager.Instance._characterEnemyClicked = character;
+                _combatLogic.attackEnemy(GameManager.Instance._characterClicked, GameManager.Instance._characterEnemyClicked);
+            }
+            GameManager.Instance._characterClicked.showPossibleMove(false);
+            GameManager.Instance._characterClicked = null;
+            GameManager.Instance._characterEnemyClicked.showPossibleMove(false);
+            GameManager.Instance._characterEnemyClicked = null;
         }
+
         stateChanged = true;
-        _characterClicked.showPossibleMove(false);
-        _characterClicked = null;
-        _characterEnemyClicked.showPossibleMove(false);
-        _characterEnemyClicked = null;
         playerIsChoosing = false;
         ToggleMenu(false);
+        RoutinesReset();
     }
 }
