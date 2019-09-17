@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
     {
         if(!GameOver)
         {
-            _attackMenu.menuController();
+            _attackMenu.MenuController();
             TurnManagement();
         }
         else if (GameOver)
@@ -77,6 +77,24 @@ public class GameManager : MonoBehaviour
                 _characterDictionary.Add(new Vector2Int(_gameBoard.getWidth - (i % _charactersPerPlayer) - 1, _gameBoard.getHeight - 1), newCharacter);
             }
         }
+    }
+
+    public List<Vector2Int> GetAllEnemiesOrAllies()
+    {
+        List<Vector2Int> tmpList = new List<Vector2Int>();
+        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+        {
+            if (alive.Value.isRed && IsRedTurn)
+            {
+                tmpList.Add(alive.Key);
+            }
+            else if (alive.Value.isRed && !IsRedTurn)
+            {
+                tmpList.Add(alive.Key);
+            }
+        }
+
+        return tmpList;
     }
 
     private void TurnManagement()
