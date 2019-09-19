@@ -14,7 +14,7 @@ public class Menu : MonoBehaviour
 
     [SerializeField] Button _moveButton;
     [SerializeField] Button _attackButton;
-    [SerializeField] Button _guardButton;
+    [SerializeField] Button _overwatchButton;
 
     public string setTurnText { set { _turnText.GetComponent<Text>().text = value; } }
 
@@ -28,11 +28,11 @@ public class Menu : MonoBehaviour
     public event Action OnMenuOpenedEvent;
     public event Action OnMoveCharacterEvent;
     //public event Action OnAttackPressedEvent;
-    public event Action OnGuardPressedEvent;
+    public event Action OnOverwatchEvent;
 
     public bool moveRoutine { get; private set; }
     public bool attackRoutine { get; private set; }
-    public bool guardRoutine { get; private set; }
+    public bool overwatchRoutine { get; private set; }
 
     private void OnMoveClicked()
     {
@@ -54,23 +54,28 @@ public class Menu : MonoBehaviour
             //OnAttackPressedEvent?.Invoke();
         }
     }
-    private void OnGuardClicked()
+    private void OnOverwatchClicked()
     {
-        guardRoutine = true;
+        if (!GameManager.Instance._characterClicked.overwatchedThisTurn)
+        {
+            overwatchRoutine = true;
+            ToggleMenu(false);
+            StartCoroutine(WaitUntilChosen());
+        }
     }
 
     private void RoutinesReset()
     {
         moveRoutine = false;
         attackRoutine = false;
-        guardRoutine = false;
+        overwatchRoutine = false;
     }
 
     protected void Awake()
     {
         _moveButton.onClick.AddListener(OnMoveClicked);
         _attackButton.onClick.AddListener(OnAttackClicked);
-        _guardButton.onClick.AddListener(OnGuardClicked);
+        _overwatchButton.onClick.AddListener(OnOverwatchClicked);
 
         ToggleMenu(false);
         targetChoosed = false;
@@ -188,6 +193,20 @@ public class Menu : MonoBehaviour
             GameManager.Instance._characterEnemyClicked = null;
 
             stateChanged = true;
+        }
+
+        if (overwatchRoutine)
+        {
+            if (!GameManager.Instance.IsCharacterHere())
+            {
+                OnOverwatchEvent?.Invoke();
+                GameManager.Instance._characterClicked.overwatchedThisTurn = true;
+            }
+            else
+            {
+                GameManager.Instance.InvalidCommand = true;
+                GameManager.Instance._characterClicked.overwatchedThisTurn = false;
+            }
         }
 
         playerIsChoosing = false;

@@ -82,11 +82,14 @@ public class Cursor : MonoBehaviour
 
         if (_mainMenu.playerIsChoosing)
         {
-            if (_mainMenu.moveRoutine)
+            if (_mainMenu.moveRoutine || _mainMenu.overwatchRoutine)
             {
                 var charToMove = GameManager.Instance._characterClicked;
                 var charPos = GameManager.Instance._whereClicked;
-                DefaultMovement(charToMove.getMovement, charPos.x, charPos.y);
+                if (_mainMenu.moveRoutine)
+                    DefaultMovement(charToMove.getMovement, charPos.x, charPos.y);
+                else
+                    DefaultMovement(charToMove.getRange, charPos.x, charPos.y);
             }
 
             if (_mainMenu.attackRoutine)

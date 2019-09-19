@@ -51,6 +51,7 @@ public class GameManager : MonoBehaviour
         _gameBoard.SurfaceInit(transform);
         spawnCharacter();
         _attackMenu.OnMoveCharacterEvent += () => PlayerMoveCharacter();
+        _attackMenu.OnOverwatchEvent += () => CharacterOverwatchingTile();
     }
 
     protected void Update()
@@ -74,14 +75,14 @@ public class GameManager : MonoBehaviour
             if (i < _charactersPerPlayer)
             {
                 newCharacter.isRed = false;
-                _gameBoard.setOnBoard(i, 0, newCharacter);
+                _gameBoard.SetCharacterOnBoard(i, 0, newCharacter);
                 _characterDictionary.Add(new Vector2Int(i, 0), newCharacter);
             }
             else
             {
                 newCharacter.isRed = true;
                 newCharacter.transform.rotation = Quaternion.Euler(0, 180, 0);
-                _gameBoard.setOnBoard(_gameBoard.getWidth - (i % _charactersPerPlayer) - 1, _gameBoard.getHeight - 1, newCharacter);
+                _gameBoard.SetCharacterOnBoard(_gameBoard.getWidth - (i % _charactersPerPlayer) - 1, _gameBoard.getHeight - 1, newCharacter);
                 _characterDictionary.Add(new Vector2Int(_gameBoard.getWidth - (i % _charactersPerPlayer) - 1, _gameBoard.getHeight - 1), newCharacter);
             }
         }
@@ -195,7 +196,7 @@ public class GameManager : MonoBehaviour
 
     private void PlayerMoveCharacter()
     {
-        _gameBoard.setOnBoard(_whereClicked.x, _whereClicked.y, _characterClicked);
+        _gameBoard.SetCharacterOnBoard(_whereClicked.x, _whereClicked.y, _characterClicked);
 
         foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
         {
@@ -205,5 +206,19 @@ public class GameManager : MonoBehaviour
                 _characterDictionary.Add(new Vector2Int(_whereClicked.x, _whereClicked.y), _characterClicked);
             }
         }
+    }
+
+    private void CharacterOverwatchingTile()
+    {
+        _gameBoard.SetTextureOnTiles(_whereClicked.x, _whereClicked.y, _tilesTypes[3]);
+
+        //foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+        //{
+        //    if (alive.Value.getCharacterID == _characterClicked.getCharacterID)
+        //    {
+        //        _characterDictionary.Remove(alive.Key);
+        //        _characterDictionary.Add(new Vector2Int(_whereClicked.x, _whereClicked.y), _characterClicked);
+        //    }
+        //}
     }
 }

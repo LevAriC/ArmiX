@@ -42,9 +42,14 @@ public class Surface : MonoBehaviour
         }
     }
 
-    public void setOnBoard(int xPos, int yPos, Character character)
+    public void SetCharacterOnBoard(int xPos, int yPos, Character character)
     {
-        _tilesOnBoard[xPos][yPos].setOnTile(character);
+        _tilesOnBoard[xPos][yPos].SetOnTile(character);
+    }
+
+    public void SetTextureOnTiles(int xPos, int yPos, Tile newTexture)
+    {
+        _tilesOnBoard[xPos][yPos].ChangeTileTexture(newTexture);
     }
 
     public Tile getFromBoard(int xPos, int yPos)

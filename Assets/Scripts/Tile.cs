@@ -4,21 +4,27 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    //[Header("References")]
+    [SerializeField] GameObject _texture;
+    private MeshRenderer _myRend;
 
-    private Character _character;
-    private bool isOccupied = false;
-
-    public Character getCharacter { get { return _character; } }
-
-    public void setOnTile(Character character)
+    protected void Start()
     {
-        //if(isOccupied)
-        //{
+        _myRend = _texture.GetComponent<MeshRenderer>();
+    }
 
-        //}
-        //_character = character;
+    public void SetOnTile(Character character)
+    {
         character.transform.position = transform.position;
-        //isOccupied = true;
+    }
+
+    public void ChangeTileTexture(Tile newTexture)
+    {
+        var tile = Instantiate(newTexture);
+        tile.gameObject.SetActive(false);
+        Material[] materials = _myRend.materials;
+        MeshRenderer tmp = tile._texture.GetComponent<MeshRenderer>();
+        Material[] tmpmat = tmp.materials;
+        //materials[0] = newTexture._texture.GetComponent<MeshRenderer>().materials;
+        _myRend.materials = tmpmat;
     }
 }

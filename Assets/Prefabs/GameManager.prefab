@@ -47,6 +47,10 @@ MonoBehaviour:
   - {fileID: 3878792251064893506, guid: 540aaa9f48f22914ca9e479ce31a51dd, type: 3}
   - {fileID: 1675239432736112589, guid: c4879e93d8ef7614c8e1bff556dce0fc, type: 3}
   - {fileID: 1511331237200029985, guid: d568dd15becc8104d9420e8d3c9f645d, type: 3}
+  - {fileID: 8839697673717920329, guid: 78fccd1a453f6954c82fd1dbe8d8e460, type: 3}
   _characterTypes:
   - {fileID: 628141250, guid: b6c6cfeb12b18d140a7539ce654aa409, type: 3}
   _gameBoard: {fileID: 0}
+  _attackMenu: {fileID: 0}
+  _restartButton: {fileID: 0}
+  _charactersPerPlayer: 2
