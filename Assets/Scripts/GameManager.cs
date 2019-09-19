@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
     #region Turns Management
     public bool IsRedTurn { get; private set; }
     public bool GameOver { get; private set; }
+    public bool InvalidCommand { get; set; }
     private int leftThisTurn;
     private int _blueLeft;
     private int _redLeft;

@@ -156,10 +156,15 @@ public class Menu : MonoBehaviour
 
         if (moveRoutine)
         {
-            GameManager.Instance._characterClicked.movedThisTurn = true;
             if (!GameManager.Instance.IsCharacterHere())
             {
                 OnMoveCharacterEvent?.Invoke();
+                GameManager.Instance._characterClicked.movedThisTurn = true;
+            }
+            else
+            {
+                GameManager.Instance.InvalidCommand = true;
+                GameManager.Instance._characterClicked.movedThisTurn = false;
             }
         }
 
@@ -170,14 +175,21 @@ public class Menu : MonoBehaviour
                 var character = GameManager.Instance._characterDictionary[GameManager.Instance._whereClicked];
                 GameManager.Instance._characterEnemyClicked = character;
                 _combatLogic.attackEnemy(GameManager.Instance._characterClicked, GameManager.Instance._characterEnemyClicked);
+                GameManager.Instance._characterClicked.attackedThisTurn = true;
             }
+            else
+            {
+                GameManager.Instance.InvalidCommand = true;
+            }
+
             GameManager.Instance._characterClicked.showPossibleMove(false);
             GameManager.Instance._characterClicked = null;
             GameManager.Instance._characterEnemyClicked.showPossibleMove(false);
             GameManager.Instance._characterEnemyClicked = null;
+
+            stateChanged = true;
         }
 
-        stateChanged = true;
         playerIsChoosing = false;
         ToggleMenu(false);
         RoutinesReset();
