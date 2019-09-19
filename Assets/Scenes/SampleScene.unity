@@ -1934,7 +1934,7 @@ PrefabInstance:
     - target: {fileID: 5717945561478356190, guid: d892b5a95b2bb97439b50c09c734be42,
         type: 3}
       propertyPath: _charactersPerPlayer
-      value: 2
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5717945561478356190, guid: d892b5a95b2bb97439b50c09c734be42,
         type: 3}
@@ -2023,12 +2023,12 @@ PrefabInstance:
     - target: {fileID: 6138613894197417453, guid: acabf7d91a023184a9cc689b28118578,
         type: 3}
       propertyPath: _height
-      value: 4
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6138613894197417453, guid: acabf7d91a023184a9cc689b28118578,
         type: 3}
       propertyPath: _width
-      value: 4
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6138613894197417453, guid: acabf7d91a023184a9cc689b28118578,
         type: 3}

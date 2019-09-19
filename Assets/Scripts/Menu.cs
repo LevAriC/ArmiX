@@ -26,28 +26,33 @@ public class Menu : MonoBehaviour
     #endregion
 
     public event Action OnMenuOpenedEvent;
-    public event Action OnMovePressedEvent;
+    public event Action OnMoveCharacterEvent;
     //public event Action OnAttackPressedEvent;
     public event Action OnGuardPressedEvent;
 
-    private bool moveRoutine;
-    private bool attackRoutine;
-    private bool guardRoutine;
+    public bool moveRoutine { get; private set; }
+    public bool attackRoutine { get; private set; }
+    public bool guardRoutine { get; private set; }
 
     private void OnMoveClicked()
     {
-        moveRoutine = true;
-        ToggleMenu(false);
-        OnMovePressedEvent?.Invoke();
-        StartCoroutine(WaitUntilChosen());
+        if (!GameManager.Instance._characterClicked.movedThisTurn)
+        {
+            moveRoutine = true;
+            ToggleMenu(false);
+            StartCoroutine(WaitUntilChosen());
+        }
     }
     private void OnAttackClicked()
     {
-        attackRoutine = true;
-        GameManager.Instance._characterClicked.showPossibleMove(true);
-        ToggleMenu(false);
-        //OnAttackPressedEvent?.Invoke();
-        StartCoroutine(WaitUntilChosen());
+        if (!GameManager.Instance._characterClicked.attackedThisTurn)
+        {
+            attackRoutine = true;
+            GameManager.Instance._characterClicked.showPossibleMove(true);
+            ToggleMenu(false);
+            StartCoroutine(WaitUntilChosen());
+            //OnAttackPressedEvent?.Invoke();
+        }
     }
     private void OnGuardClicked()
     {
@@ -147,6 +152,15 @@ public class Menu : MonoBehaviour
         while (playerIsChoosing)
         {
             yield return null;
+        }
+
+        if (moveRoutine)
+        {
+            GameManager.Instance._characterClicked.movedThisTurn = true;
+            if (!GameManager.Instance.IsCharacterHere())
+            {
+                OnMoveCharacterEvent?.Invoke();
+            }
         }
 
         if (attackRoutine)

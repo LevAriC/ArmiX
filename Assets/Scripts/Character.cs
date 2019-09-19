@@ -16,9 +16,11 @@ public class Character : MonoBehaviour
     [SerializeField] CharacterTypes _characterType;
     [SerializeField] int _strength;
     [SerializeField] int _health;
+    [SerializeField] int _movement;
 
     #region State
     public bool movedThisTurn { get; set; }
+    public bool attackedThisTurn { get; set; }
     public int remainingHealth { get; set; }
     #endregion
 
@@ -31,6 +33,7 @@ public class Character : MonoBehaviour
 
     #region Properties
     public int getStrength { get { return _strength; } }
+    public int getMovement { get { return _movement; } }
     #endregion
 
     protected void Awake()

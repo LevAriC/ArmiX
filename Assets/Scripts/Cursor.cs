@@ -41,18 +41,37 @@ public class Cursor : MonoBehaviour
         transform.position = currentTile.transform.position;
     }
 
+    private void DefaultMovement(int restrict = -1, int originX = -1, int originY = -1)
+    {
+        var curMaxX = maxX;
+        var curMaxY = maxY;
+        var curMinX = 0;
+        var curMinY = 0;
+
+        if (restrict != -1)
+        {
+            if (maxX >= curMaxX) curMaxX = originX + restrict;
+            if (maxY >= curMaxY) curMaxY = originY + restrict;
+            if (originX - restrict > 0) curMinX = originX - restrict;
+            if (originY - restrict > 0) curMinY = originY - restrict;
+        }
+
+        if (Input.GetKeyDown(KeyCode.UpArrow) && posY < curMaxY)
+            posY += 1;
+        if (Input.GetKeyDown(KeyCode.DownArrow) && posY > curMinY)
+            posY -= 1;
+        if (Input.GetKeyDown(KeyCode.LeftArrow) && posX > curMinX)
+            posX -= 1;
+        if (Input.GetKeyDown(KeyCode.RightArrow) && posX < curMaxX)
+            posX += 1;
+
+    }
+
     private void cursorMovement()
     {
         if (!_mainMenu.menuOpen && !_mainMenu.playerIsChoosing)
         {
-            if (Input.GetKeyDown(KeyCode.UpArrow) && posY < maxY)
-                posY += 1;
-            if (Input.GetKeyDown(KeyCode.DownArrow) && posY > 0)
-                posY -= 1;
-            if (Input.GetKeyDown(KeyCode.LeftArrow) && posX > 0)
-                posX -= 1;
-            if (Input.GetKeyDown(KeyCode.RightArrow) && posX < maxX)
-                posX += 1;
+            DefaultMovement();
 
             if (restrictedList != null)
             {
@@ -63,29 +82,39 @@ public class Cursor : MonoBehaviour
 
         if (_mainMenu.playerIsChoosing)
         {
-            if (restrictedList == null)
+            if (_mainMenu.moveRoutine)
             {
-                restrictedList = new List<Vector2Int>(GameManager.Instance.GetAllEnemiesOrAllies());
-                restrictedListIndex = 0;
+                var charToMove = GameManager.Instance._characterClicked;
+                var charPos = GameManager.Instance._whereClicked;
+                DefaultMovement(charToMove.getMovement, charPos.x, charPos.y);
             }
 
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (_mainMenu.attackRoutine)
             {
-                if (restrictedListIndex == 0)
-                    restrictedListIndex = restrictedList.Count - 1;
-                else
-                    restrictedListIndex--;
-            }
-            if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                if (restrictedListIndex == restrictedList.Count - 1)
+                if (restrictedList == null)
+                {
+                    restrictedList = new List<Vector2Int>(GameManager.Instance.GetAllEnemiesOrAllies());
                     restrictedListIndex = 0;
-                else
-                    restrictedListIndex++;
-            }
+                }
 
-            posX = restrictedList[restrictedListIndex].x;
-            posY = restrictedList[restrictedListIndex].y;
+                if (Input.GetKeyDown(KeyCode.LeftArrow))
+                {
+                    if (restrictedListIndex == 0)
+                        restrictedListIndex = restrictedList.Count - 1;
+                    else
+                        restrictedListIndex--;
+                }
+                if (Input.GetKeyDown(KeyCode.RightArrow))
+                {
+                    if (restrictedListIndex == restrictedList.Count - 1)
+                        restrictedListIndex = 0;
+                    else
+                        restrictedListIndex++;
+                }
+
+                posX = restrictedList[restrictedListIndex].x;
+                posY = restrictedList[restrictedListIndex].y;
+            }
         }
 
         moveCursor(posX, posY);

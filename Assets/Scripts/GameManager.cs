@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
     {
         _gameBoard.SurfaceInit(transform);
         spawnCharacter();
-        _attackMenu.OnMovePressedEvent += () => PlayerMoveCharacter();
+        _attackMenu.OnMoveCharacterEvent += () => PlayerMoveCharacter();
     }
 
     protected void Update()
@@ -194,12 +194,15 @@ public class GameManager : MonoBehaviour
 
     private void PlayerMoveCharacter()
     {
-        //foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
-        //{
-        //    if(alive.Key == _whereClicked)
-        //}
-        //    _characterClicked = _characterDictionary[_whereClicked];
         _gameBoard.setOnBoard(_whereClicked.x, _whereClicked.y, _characterClicked);
 
+        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+        {
+            if (alive.Value.getCharacterID == _characterClicked.getCharacterID)
+            {
+                _characterDictionary.Remove(alive.Key);
+                _characterDictionary.Add(new Vector2Int(_whereClicked.x, _whereClicked.y), _characterClicked);
+            }
+        }
     }
 }

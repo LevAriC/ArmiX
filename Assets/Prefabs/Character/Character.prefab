@@ -343,6 +343,7 @@ MonoBehaviour:
   _characterType: 0
   _strength: 2
   _health: 5
+  _movement: 2
 --- !u!1 &3239358437188222736
 GameObject:
   m_ObjectHideFlags: 0
