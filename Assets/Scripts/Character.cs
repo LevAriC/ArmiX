@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class Character : MonoBehaviour
 {
     public enum CharacterTypes { MachineGun, Sniper, Agent };
+    public enum CharacterColors { Blue, Red };
 
     [Header("References")]
     [SerializeField] Surface _attackSurface;
@@ -27,9 +28,9 @@ public class Character : MonoBehaviour
     #endregion
 
     #region ID
+    public CharacterColors myColor { get; set; }
     private static int _characterID = 0;
     public int getCharacterID { get; private set; }
-    public bool isRed { get; set; }
     public bool isDead { get; private set; }
     #endregion
 
@@ -42,7 +43,6 @@ public class Character : MonoBehaviour
     protected void Awake()
     {
         movedThisTurn = false;
-        isRed = false;
         ++_characterID;
         getCharacterID = _characterID;
         remainingHealth = _health;

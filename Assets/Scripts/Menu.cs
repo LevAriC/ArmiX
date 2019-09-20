@@ -119,7 +119,7 @@ public class Menu : MonoBehaviour
 
     private bool IsMyTurn()
     {
-        if (GameManager.Instance._characterClicked && GameManager.Instance._characterClicked.isRed == GameManager.Instance.IsRedTurn)
+        if (GameManager.Instance._characterClicked && GameManager.Instance._characterClicked.myColor == GameManager.Instance.CurrentPlayer)
             return true;
         else
             return false;
@@ -129,17 +129,17 @@ public class Menu : MonoBehaviour
     {
         if(!GameManager.Instance.GameOver)
         {
-            if (GameManager.Instance.IsRedTurn)
-                _turnText.GetComponent<Text>().text = "Red Turn";
-            else
+            if (GameManager.Instance.CurrentPlayer == Character.CharacterColors.Blue)
                 _turnText.GetComponent<Text>().text = "Blue Turn";
+            else
+                _turnText.GetComponent<Text>().text = "Red Turn";
         }
         else
         {
-            if (GameManager.Instance.IsRedTurn)
-                _turnText.GetComponent<Text>().text = "Red Wins!";
-            else
+            if (GameManager.Instance.CurrentPlayer == Character.CharacterColors.Blue)
                 _turnText.GetComponent<Text>().text = "Blue Wins!";
+            else
+                _turnText.GetComponent<Text>().text = "Red Wins!";
         }
     }
 

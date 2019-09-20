@@ -11,6 +11,8 @@ public class Cursor : MonoBehaviour
     private int restrictedListIndex;
     [SerializeField] Menu _mainMenu;
     public static Cursor cursorInstance { get; private set; }
+    private Character.CharacterColors _prevColor;
+
 
     public Vector2Int getCoords { get { return cursorPosition(); } }
 
@@ -19,19 +21,34 @@ public class Cursor : MonoBehaviour
         cursorInstance = this;
         restrictedList = null;
         restrictedListIndex = -1;
-        posX = 0;
-        posY = 0;
     }
 
     protected void Start()
     {
+        _prevColor = GameManager.Instance.CurrentPlayer;
+
         maxX = GameManager.Instance.getBoard.getWidth - 1;
         maxY = GameManager.Instance.getBoard.getHeight - 1;
+
+        if(_prevColor == Character.CharacterColors.Blue)
+        {
+            posX = 0;
+            posY = 0;
+        }
+        else
+        {
+            posX = maxX;
+            posY = maxY;
+        }
+
         moveCursor(posX, posY);
     }
 
     protected void Update()
     {
+        if (_prevColor != GameManager.Instance.CurrentPlayer)
+            _prevColor = GameManager.Instance.CurrentPlayer;
+
         cursorMovement();
     }
 
@@ -57,14 +74,13 @@ public class Cursor : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.UpArrow) && posY < curMaxY)
-            posY += 1;
+            posY += _prevColor == Character.CharacterColors.Blue ? 1 : -1;
         if (Input.GetKeyDown(KeyCode.DownArrow) && posY > curMinY)
-            posY -= 1;
+            posY += _prevColor == Character.CharacterColors.Blue ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.LeftArrow) && posX > curMinX)
-            posX -= 1;
+            posX += _prevColor == Character.CharacterColors.Blue ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.RightArrow) && posX < curMaxX)
-            posX += 1;
-
+            posX += _prevColor == Character.CharacterColors.Blue ? 1 : -1;
     }
 
     private void cursorMovement()

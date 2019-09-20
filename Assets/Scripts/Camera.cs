@@ -5,18 +5,46 @@ using UnityEngine;
 public class Camera : MonoBehaviour
 {
     [SerializeField] Transform target;
-    [SerializeField] float _x;
-    [SerializeField] float _y;
-    [SerializeField] float _z;
     [SerializeField] float _lerp;
     private Vector3 prevPos;
+    private Character.CharacterColors _prevColor;
+
+    private float _x;
+    private float _y;
+    private float _z;
+
+    private float _xx;
+    private float _yy;
+    private float _zz;
 
     protected void Awake()
     {
+        _x = 0f;
+        _y = 1.5f;
+        _z = -2.5f;
+
+        _xx = 0f;
+        _yy = 1f;
+        _zz = 1f;
+
         prevPos = transform.position;
+    }
+
+    protected void Start()
+    {
+        _prevColor = GameManager.Instance.CurrentPlayer;
+        _z = _prevColor == Character.CharacterColors.Blue ? _z : -_z;
+        _zz = _prevColor == Character.CharacterColors.Blue ? _zz : -_zz;
     }
     protected void Update()
     {
+        if (_prevColor != GameManager.Instance.CurrentPlayer)
+        {
+            _prevColor = GameManager.Instance.CurrentPlayer;
+            _z = -_z;
+            _zz = -_zz;
+        }
+
         transform.position = target.position + new Vector3(_x, _y, _z);
         //transform.position = Vector3.Lerp(prevPos, target.position + new Vector3(_x, _y, _z), _lerp);
         transform.LookAt(LookHere());
@@ -25,6 +53,6 @@ public class Camera : MonoBehaviour
 
     private Vector3 LookHere()
     {
-        return target.position + new Vector3(0, 1f, 1f);
+        return target.position + new Vector3(_xx, _yy, _zz);
     }
 }

@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Turns Management
-    public bool IsRedTurn { get; private set; }
+    public Character.CharacterColors CurrentPlayer { get; private set; }
     public bool GameOver { get; private set; }
     public bool InvalidCommand { get; set; }
     private int leftThisTurn;
@@ -74,13 +74,13 @@ public class GameManager : MonoBehaviour
             var newCharacter = Instantiate(_characterTypes[0]);
             if (i < _charactersPerPlayer)
             {
-                newCharacter.isRed = false;
+                newCharacter.myColor = Character.CharacterColors.Blue;
                 _gameBoard.SetCharacterOnBoard(i, 0, newCharacter);
                 _characterDictionary.Add(new Vector2Int(i, 0), newCharacter);
             }
             else
             {
-                newCharacter.isRed = true;
+                newCharacter.myColor = Character.CharacterColors.Red;
                 newCharacter.transform.rotation = Quaternion.Euler(0, 180, 0);
                 _gameBoard.SetCharacterOnBoard(_gameBoard.getWidth - (i % _charactersPerPlayer) - 1, _gameBoard.getHeight - 1, newCharacter);
                 _characterDictionary.Add(new Vector2Int(_gameBoard.getWidth - (i % _charactersPerPlayer) - 1, _gameBoard.getHeight - 1), newCharacter);
@@ -93,11 +93,11 @@ public class GameManager : MonoBehaviour
         List<Vector2Int> tmpList = new List<Vector2Int>();
         foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
         {
-            if (!alive.Value.isRed && IsRedTurn)
+            if (alive.Value.myColor != Character.CharacterColors.Red && CurrentPlayer == Character.CharacterColors.Red)
             {
                 tmpList.Add(alive.Key);
             }
-            else if (alive.Value.isRed && !IsRedTurn)
+            if (alive.Value.myColor == Character.CharacterColors.Red && CurrentPlayer != Character.CharacterColors.Red)
             {
                 tmpList.Add(alive.Key);
             }
@@ -117,7 +117,7 @@ public class GameManager : MonoBehaviour
                     alive.Value.UpdateStatus();
                     if (alive.Value.isDead)
                     {
-                        if(!GameIsOver(alive.Value.isRed))
+                        if(!GameIsOver(alive.Value.myColor))
                         {
                             RIP = alive.Key;
                             Destroy(alive.Value.gameObject);
@@ -144,15 +144,15 @@ public class GameManager : MonoBehaviour
             }
             if (leftThisTurn <= 0)
             {
-                leftThisTurn = IsRedTurn ? _redLeft : _blueLeft;
-                IsRedTurn = !IsRedTurn;
+                leftThisTurn = CurrentPlayer == Character.CharacterColors.Blue ? _blueLeft : _redLeft;
+                CurrentPlayer = CurrentPlayer == Character.CharacterColors.Red ? Character.CharacterColors.Blue : Character.CharacterColors.Red;
             }
         }
     }
 
     private void TurnInit()
     {
-        IsRedTurn = false;
+        CurrentPlayer = Random.value > 0.5f ? Character.CharacterColors.Blue : Character.CharacterColors.Red;
         GameOver = false;
         leftThisTurn = _charactersPerPlayer;
         _blueLeft = _charactersPerPlayer;
@@ -160,9 +160,9 @@ public class GameManager : MonoBehaviour
         RIP = new Vector2Int(-1, -1);
     }
 
-    private bool GameIsOver(bool red)
+    private bool GameIsOver(Character.CharacterColors color)
     {
-        if (red)
+        if (color == Character.CharacterColors.Red)
             _redLeft--;
         else
             _blueLeft--;

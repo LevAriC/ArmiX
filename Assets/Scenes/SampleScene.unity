@@ -1249,9 +1249,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 1242351220}
-  _x: 0
-  _y: 1.5
-  _z: -2.5
   _lerp: 0.95
 --- !u!1 &973137103
 GameObject:
