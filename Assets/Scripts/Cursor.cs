@@ -41,8 +41,7 @@ public class Cursor : MonoBehaviour
             posY = maxY;
         }
 
-        //moveCursor(posX, posY);
-        moveCursor(2, 2);
+        moveCursor(posX, posY);
     }
 
     protected void Update()

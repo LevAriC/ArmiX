@@ -9,7 +9,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] Tile[] _tilesTypes;
     [SerializeField] Character[] _characterTypes;
     [SerializeField] Surface _gameBoard;
-    [SerializeField] Menu _attackMenu;
     [SerializeField] Button _restartButton;
 
     [Header("Variables")]
@@ -50,15 +49,16 @@ public class GameManager : MonoBehaviour
     {
         _gameBoard.SurfaceInit(transform);
         spawnCharacter();
-        _attackMenu.OnMoveCharacterEvent += () => PlayerMoveCharacter();
-        _attackMenu.OnOverwatchEvent += () => CharacterOverwatchingTile();
+        Menu.menuInstance.OnMoveCharacterEvent += OnPlayerMoveCharacter;
+        Menu.menuInstance.OnOverwatchEvent += OnCharacterOverwatchingTile;
+        Menu.menuInstance.OnAttackPressedEvent += () => _characterClicked.GetAnimator.SetTrigger("isAttacking");
     }
 
     protected void Update()
     {
         if(!GameOver)
         {
-            _attackMenu.MenuController();
+            Menu.menuInstance.MenuController();
             TurnManagement();
         }
         else if (GameOver)
@@ -71,7 +71,7 @@ public class GameManager : MonoBehaviour
     {
         for(int i = 0; i < _charactersPerPlayer * 2; i++)
         {
-            var newCharacter = Instantiate(_characterTypes[0]);
+            var newCharacter = Instantiate(_characterTypes[i % _charactersPerPlayer]);
             if (i < _charactersPerPlayer)
             {
                 newCharacter.myColor = Character.CharacterColors.Blue;
@@ -202,7 +202,7 @@ public class GameManager : MonoBehaviour
         return isCharHere;
     }
 
-    private void PlayerMoveCharacter()
+    private void OnPlayerMoveCharacter()
     {
         _gameBoard.SetCharacterOnBoard(_whereClicked.x, _whereClicked.y, _characterClicked);
 
@@ -216,7 +216,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void CharacterOverwatchingTile()
+    private void OnCharacterOverwatchingTile()
     {
         _gameBoard.SetTextureOnTiles(_whereClicked.x, _whereClicked.y, _tilesTypes[3]);
 

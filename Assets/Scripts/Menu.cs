@@ -27,12 +27,15 @@ public class Menu : MonoBehaviour
 
     public event Action OnMenuOpenedEvent;
     public event Action OnMoveCharacterEvent;
-    //public event Action OnAttackPressedEvent;
+    public event Action OnAttackPressedEvent;
+    public event Action OnTargetAcquiredEvent;
     public event Action OnOverwatchEvent;
 
     public bool moveRoutine { get; private set; }
     public bool attackRoutine { get; private set; }
     public bool overwatchRoutine { get; private set; }
+
+    public static Menu menuInstance { get; private set; }
 
     private void OnMoveClicked()
     {
@@ -51,7 +54,7 @@ public class Menu : MonoBehaviour
             GameManager.Instance._characterClicked.showPossibleMove(true);
             ToggleMenu(false);
             StartCoroutine(WaitUntilChosen());
-            //OnAttackPressedEvent?.Invoke();
+            OnAttackPressedEvent?.Invoke();
         }
     }
     private void OnOverwatchClicked()
@@ -73,6 +76,7 @@ public class Menu : MonoBehaviour
 
     protected void Awake()
     {
+        menuInstance = this;
         _moveButton.onClick.AddListener(OnMoveClicked);
         _attackButton.onClick.AddListener(OnAttackClicked);
         _overwatchButton.onClick.AddListener(OnOverwatchClicked);
@@ -181,6 +185,8 @@ public class Menu : MonoBehaviour
                 var character = GameManager.Instance._characterDictionary[GameManager.Instance._whereClicked];
                 GameManager.Instance._characterEnemyClicked = character;
                 _combatLogic.attackEnemy(GameManager.Instance._characterClicked, GameManager.Instance._characterEnemyClicked);
+                GameManager.Instance._characterClicked.GetAnimator.SetTrigger("isTargetAcquired");
+                GameManager.Instance._characterEnemyClicked.GetAnimator.SetTrigger("isHit");
                 GameManager.Instance._characterClicked.attackedThisTurn = true;
                 Cursor.cursorInstance.moveCursor(attackerPos.x, attackerPos.y);
             }
@@ -189,7 +195,6 @@ public class Menu : MonoBehaviour
                 GameManager.Instance.InvalidCommand = true;
                 Cursor.cursorInstance.moveCursor(attackerPos.x, attackerPos.y);
             }
-
             GameManager.Instance._characterClicked.showPossibleMove(false);
             GameManager.Instance._characterClicked = null;
             GameManager.Instance._characterEnemyClicked.showPossibleMove(false);

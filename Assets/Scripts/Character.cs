@@ -40,6 +40,11 @@ public class Character : MonoBehaviour
     public int getRange { get { return _range; } }
     #endregion
 
+    #region Animation
+    [SerializeField] Animator _characterAnimator;
+    public Animator GetAnimator { get { return _characterAnimator; } }
+    #endregion
+
     protected void Awake()
     {
         movedThisTurn = false;
@@ -55,6 +60,12 @@ public class Character : MonoBehaviour
         _attackSurface.gameObject.SetActive(false);
         _movementSurface.SurfaceInit(transform);
         _movementSurface.gameObject.SetActive(false);
+        //Menu.menuInstance.OnAttackPressedEvent += () => { _characterAnimator.SetBool("isAttacking", true); };
+    }
+
+    private void AttackHandler()
+    {
+
     }
 
     public void showPossibleMove(bool show)

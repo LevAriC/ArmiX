@@ -1943,11 +1943,6 @@ PrefabInstance:
       objectReference: {fileID: 449687853}
     - target: {fileID: 5717945561478356190, guid: d892b5a95b2bb97439b50c09c734be42,
         type: 3}
-      propertyPath: _attackMenu
-      value: 
-      objectReference: {fileID: 1147209181}
-    - target: {fileID: 5717945561478356190, guid: d892b5a95b2bb97439b50c09c734be42,
-        type: 3}
       propertyPath: _restartButton
       value: 
       objectReference: {fileID: 757815227}
