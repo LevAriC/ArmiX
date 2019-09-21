@@ -117,7 +117,7 @@ public class GameManager : MonoBehaviour
                     alive.Value.UpdateStatus();
                     if (alive.Value.isDead)
                     {
-                        if(!GameIsOver(alive.Value.myColor))
+                        if (!GameIsOver(alive.Value.myColor))
                         {
                             RIP = alive.Key;
                             Destroy(alive.Value.gameObject);
@@ -146,6 +146,14 @@ public class GameManager : MonoBehaviour
             {
                 leftThisTurn = CurrentPlayer == Character.CharacterColors.Blue ? _blueLeft : _redLeft;
                 CurrentPlayer = CurrentPlayer == Character.CharacterColors.Red ? Character.CharacterColors.Blue : Character.CharacterColors.Red;
+                foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+                {
+                    if (alive.Value.myColor == CurrentPlayer)
+                    {
+                        Cursor.cursorInstance.moveCursor(alive.Key.x, alive.Key.x);
+                        break;
+                    }
+                }
             }
         }
     }

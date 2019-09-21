@@ -11,7 +11,7 @@ public class Cursor : MonoBehaviour
     private int restrictedListIndex;
     [SerializeField] Menu _mainMenu;
     public static Cursor cursorInstance { get; private set; }
-    private Character.CharacterColors _prevColor;
+    private Character.CharacterColors _currentColor;
 
 
     public Vector2Int getCoords { get { return cursorPosition(); } }
@@ -25,12 +25,12 @@ public class Cursor : MonoBehaviour
 
     protected void Start()
     {
-        _prevColor = GameManager.Instance.CurrentPlayer;
+        _currentColor = GameManager.Instance.CurrentPlayer;
 
         maxX = GameManager.Instance.getBoard.getWidth - 1;
         maxY = GameManager.Instance.getBoard.getHeight - 1;
 
-        if(_prevColor == Character.CharacterColors.Blue)
+        if(_currentColor == Character.CharacterColors.Blue)
         {
             posX = 0;
             posY = 0;
@@ -41,19 +41,22 @@ public class Cursor : MonoBehaviour
             posY = maxY;
         }
 
-        moveCursor(posX, posY);
+        //moveCursor(posX, posY);
+        moveCursor(2, 2);
     }
 
     protected void Update()
     {
-        if (_prevColor != GameManager.Instance.CurrentPlayer)
-            _prevColor = GameManager.Instance.CurrentPlayer;
+        if (_currentColor != GameManager.Instance.CurrentPlayer)
+            _currentColor = GameManager.Instance.CurrentPlayer;
 
         cursorMovement();
     }
 
     public void moveCursor(int x, int y)
     {
+        posX = x;
+        posY = y;
         currentTile = GameManager.Instance.getBoard.getFromBoard(x, y);
         transform.position = currentTile.transform.position;
     }
@@ -73,14 +76,23 @@ public class Cursor : MonoBehaviour
             if (originY - restrict > 0) curMinY = originY - restrict;
         }
 
-        if (Input.GetKeyDown(KeyCode.UpArrow) && posY < curMaxY)
-            posY += _prevColor == Character.CharacterColors.Blue ? 1 : -1;
-        if (Input.GetKeyDown(KeyCode.DownArrow) && posY > curMinY)
-            posY += _prevColor == Character.CharacterColors.Blue ? -1 : 1;
-        if (Input.GetKeyDown(KeyCode.LeftArrow) && posX > curMinX)
-            posX += _prevColor == Character.CharacterColors.Blue ? -1 : 1;
-        if (Input.GetKeyDown(KeyCode.RightArrow) && posX < curMaxX)
-            posX += _prevColor == Character.CharacterColors.Blue ? 1 : -1;
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+            if (posY < curMaxY || posY > curMinY)
+                posY += _currentColor == Character.CharacterColors.Blue ? 1 : -1;
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+            if(posY > curMinY || posY < curMaxY)
+                posY += _currentColor == Character.CharacterColors.Blue ? -1 : 1;
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if(posX > curMinX || posX < curMaxX)
+                posX += _currentColor == Character.CharacterColors.Blue ? -1 : 1;
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+            if(posX < curMaxX || posX > curMinX)
+                posX += _currentColor == Character.CharacterColors.Blue ? 1 : -1;
+
+        if (posX < curMinX) posX = curMinX;
+        if (posX > curMaxX) posX = curMaxX;
+        if (posY < curMinY) posY = curMinY;
+        if (posY > curMaxY) posY = curMaxY;
     }
 
     private void cursorMovement()

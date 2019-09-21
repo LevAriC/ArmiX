@@ -175,16 +175,19 @@ public class Menu : MonoBehaviour
 
         if (attackRoutine)
         {
+            var attackerPos = GameManager.Instance._whereClicked;
             if (GameManager.Instance.IsCharacterHere())
             {
                 var character = GameManager.Instance._characterDictionary[GameManager.Instance._whereClicked];
                 GameManager.Instance._characterEnemyClicked = character;
                 _combatLogic.attackEnemy(GameManager.Instance._characterClicked, GameManager.Instance._characterEnemyClicked);
                 GameManager.Instance._characterClicked.attackedThisTurn = true;
+                Cursor.cursorInstance.moveCursor(attackerPos.x, attackerPos.y);
             }
             else
             {
                 GameManager.Instance.InvalidCommand = true;
+                Cursor.cursorInstance.moveCursor(attackerPos.x, attackerPos.y);
             }
 
             GameManager.Instance._characterClicked.showPossibleMove(false);
