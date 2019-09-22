@@ -16,17 +16,17 @@ public class GameManager : MonoBehaviour
 
     #region Surface
     public Dictionary<Vector2Int, Character> _characterDictionary { get; private set; }
-    public Surface getBoard { get { return _gameBoard; } }
+    public Surface GetBoard { get { return _gameBoard; } }
     #endregion
 
     #region Turns Management
     public Character.CharacterColors CurrentPlayer { get; private set; }
     public bool GameOver { get; private set; }
     public bool InvalidCommand { get; set; }
-    private int leftThisTurn;
+    private int _leftThisTurn;
     private int _blueLeft;
     private int _redLeft;
-    private Vector2Int RIP;
+    private Vector2Int _RIP;
     #endregion
 
     #region Click Detectors
@@ -48,10 +48,10 @@ public class GameManager : MonoBehaviour
     protected void Start()
     {
         _gameBoard.SurfaceInit(transform);
-        spawnCharacter();
+        SpawnCharacter();
         Menu.menuInstance.OnMoveCharacterEvent += OnPlayerMoveCharacter;
         Menu.menuInstance.OnOverwatchEvent += OnCharacterOverwatchingTile;
-        Menu.menuInstance.OnAttackPressedEvent += () => _characterClicked.GetAnimator.SetTrigger("isAttacking");
+        Menu.menuInstance.OnAttackPressedEvent += () => _characterClicked.myAnimator.SetTrigger("isAttacking");
     }
 
     protected void Update()
@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void spawnCharacter()
+    private void SpawnCharacter()
     {
         for(int i = 0; i < _charactersPerPlayer * 2; i++)
         {
@@ -82,8 +82,8 @@ public class GameManager : MonoBehaviour
             {
                 newCharacter.myColor = Character.CharacterColors.Red;
                 newCharacter.transform.rotation = Quaternion.Euler(0, 180, 0);
-                _gameBoard.SetCharacterOnBoard(_gameBoard.getWidth - (i % _charactersPerPlayer) - 1, _gameBoard.getHeight - 1, newCharacter);
-                _characterDictionary.Add(new Vector2Int(_gameBoard.getWidth - (i % _charactersPerPlayer) - 1, _gameBoard.getHeight - 1), newCharacter);
+                _gameBoard.SetCharacterOnBoard(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1, newCharacter);
+                _characterDictionary.Add(new Vector2Int(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1), newCharacter);
             }
         }
     }
@@ -110,7 +110,7 @@ public class GameManager : MonoBehaviour
     {
         if (Menu.stateChanged)
         {
-            if (leftThisTurn > 0)
+            if (_leftThisTurn > 0)
             {
                 foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
                 {
@@ -119,7 +119,7 @@ public class GameManager : MonoBehaviour
                     {
                         if (!GameIsOver(alive.Value.myColor))
                         {
-                            RIP = alive.Key;
+                            _RIP = alive.Key;
                             Destroy(alive.Value.gameObject);
                         }
                         else
@@ -129,28 +129,28 @@ public class GameManager : MonoBehaviour
                     }
                     else
                     {
-                        alive.Value.updateHUD();
+                        alive.Value.UpdateHUD();
                     }
                 }
 
-                if (RIP != new Vector2Int(-1, -1))
+                if (_RIP != new Vector2Int(-1, -1))
                 {
-                    _characterDictionary.Remove(RIP);
-                    RIP = new Vector2Int(-1, -1);
+                    _characterDictionary.Remove(_RIP);
+                    _RIP = new Vector2Int(-1, -1);
                 }
 
                 Menu.stateChanged = false;
-                leftThisTurn--;
+                _leftThisTurn--;
             }
-            if (leftThisTurn <= 0)
+            if (_leftThisTurn <= 0)
             {
-                leftThisTurn = CurrentPlayer == Character.CharacterColors.Blue ? _blueLeft : _redLeft;
+                _leftThisTurn = CurrentPlayer == Character.CharacterColors.Blue ? _blueLeft : _redLeft;
                 CurrentPlayer = CurrentPlayer == Character.CharacterColors.Red ? Character.CharacterColors.Blue : Character.CharacterColors.Red;
                 foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
                 {
                     if (alive.Value.myColor == CurrentPlayer)
                     {
-                        Cursor.cursorInstance.moveCursor(alive.Key.x, alive.Key.x);
+                        Cursor.cursorInstance.MoveCursor(alive.Key.x, alive.Key.x);
                         break;
                     }
                 }
@@ -162,10 +162,10 @@ public class GameManager : MonoBehaviour
     {
         CurrentPlayer = Random.value > 0.5f ? Character.CharacterColors.Blue : Character.CharacterColors.Red;
         GameOver = false;
-        leftThisTurn = _charactersPerPlayer;
+        _leftThisTurn = _charactersPerPlayer;
         _blueLeft = _charactersPerPlayer;
         _redLeft = _charactersPerPlayer;
-        RIP = new Vector2Int(-1, -1);
+        _RIP = new Vector2Int(-1, -1);
     }
 
     private bool GameIsOver(Character.CharacterColors color)
@@ -191,13 +191,13 @@ public class GameManager : MonoBehaviour
         }
 
         _characterDictionary = new Dictionary<Vector2Int, Character>();
-        spawnCharacter();
+        SpawnCharacter();
         _restartButton.gameObject.SetActive(false); 
     }
 
     public bool IsCharacterHere()
     {
-        _whereClicked = Cursor.cursorInstance.getCoords;
+        _whereClicked = Cursor.cursorInstance.GetCoords;
         bool isCharHere = _characterDictionary.ContainsKey(_whereClicked) ? true : false;
         return isCharHere;
     }

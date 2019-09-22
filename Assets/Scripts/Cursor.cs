@@ -4,44 +4,44 @@ using UnityEngine;
 
 public class Cursor : MonoBehaviour
 {
-    private int posX, posY;
-    private int maxX, maxY;
-    private Tile currentTile;
-    private List<Vector2Int> restrictedList;
-    private int restrictedListIndex;
     [SerializeField] Menu _mainMenu;
-    public static Cursor cursorInstance { get; private set; }
     private Character.CharacterColors _currentColor;
+    private List<Vector2Int> _restrictedList;
+    private Tile _currentTile;
+    private int _restrictedListIndex;
 
+    private int _posX, _posY;
+    private int _maxX, _maxY;
 
-    public Vector2Int getCoords { get { return cursorPosition(); } }
+    public static Cursor cursorInstance { get; private set; }
+    public Vector2Int GetCoords { get { return new Vector2Int(_posX, _posY); } }
 
     protected void Awake()
     {
         cursorInstance = this;
-        restrictedList = null;
-        restrictedListIndex = -1;
+        _restrictedList = null;
+        _restrictedListIndex = -1;
     }
 
     protected void Start()
     {
         _currentColor = GameManager.Instance.CurrentPlayer;
 
-        maxX = GameManager.Instance.getBoard.getWidth - 1;
-        maxY = GameManager.Instance.getBoard.getHeight - 1;
+        _maxX = GameManager.Instance.GetBoard.GetWidth - 1;
+        _maxY = GameManager.Instance.GetBoard.GetHeight - 1;
 
         if(_currentColor == Character.CharacterColors.Blue)
         {
-            posX = 0;
-            posY = 0;
+            _posX = 0;
+            _posY = 0;
         }
         else
         {
-            posX = maxX;
-            posY = maxY;
+            _posX = _maxX;
+            _posY = _maxY;
         }
 
-        moveCursor(posX, posY);
+        MoveCursor(_posX, _posY);
     }
 
     protected void Update()
@@ -49,61 +49,61 @@ public class Cursor : MonoBehaviour
         if (_currentColor != GameManager.Instance.CurrentPlayer)
             _currentColor = GameManager.Instance.CurrentPlayer;
 
-        cursorMovement();
+        CursorMovement();
     }
 
-    public void moveCursor(int x, int y)
+    public void MoveCursor(int x, int y)
     {
-        posX = x;
-        posY = y;
-        currentTile = GameManager.Instance.getBoard.getFromBoard(x, y);
-        transform.position = currentTile.transform.position;
+        _posX = x;
+        _posY = y;
+        _currentTile = GameManager.Instance.GetBoard.GetFromBoard(x, y);
+        transform.position = _currentTile.transform.position;
     }
 
     private void DefaultMovement(int restrict = -1, int originX = -1, int originY = -1)
     {
-        var curMaxX = maxX;
-        var curMaxY = maxY;
+        var curMaxX = _maxX;
+        var curMaxY = _maxY;
         var curMinX = 0;
         var curMinY = 0;
 
         if (restrict != -1)
         {
-            if (maxX >= curMaxX) curMaxX = originX + restrict;
-            if (maxY >= curMaxY) curMaxY = originY + restrict;
+            if (_maxX >= curMaxX) curMaxX = originX + restrict;
+            if (_maxY >= curMaxY) curMaxY = originY + restrict;
             if (originX - restrict > 0) curMinX = originX - restrict;
             if (originY - restrict > 0) curMinY = originY - restrict;
         }
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
-            if (posY < curMaxY || posY > curMinY)
-                posY += _currentColor == Character.CharacterColors.Blue ? 1 : -1;
+            if (_posY < curMaxY || _posY > curMinY)
+                _posY += _currentColor == Character.CharacterColors.Blue ? 1 : -1;
         if (Input.GetKeyDown(KeyCode.DownArrow))
-            if(posY > curMinY || posY < curMaxY)
-                posY += _currentColor == Character.CharacterColors.Blue ? -1 : 1;
+            if(_posY > curMinY || _posY < curMaxY)
+                _posY += _currentColor == Character.CharacterColors.Blue ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.LeftArrow))
-            if(posX > curMinX || posX < curMaxX)
-                posX += _currentColor == Character.CharacterColors.Blue ? -1 : 1;
+            if(_posX > curMinX || _posX < curMaxX)
+                _posX += _currentColor == Character.CharacterColors.Blue ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.RightArrow))
-            if(posX < curMaxX || posX > curMinX)
-                posX += _currentColor == Character.CharacterColors.Blue ? 1 : -1;
+            if(_posX < curMaxX || _posX > curMinX)
+                _posX += _currentColor == Character.CharacterColors.Blue ? 1 : -1;
 
-        if (posX < curMinX) posX = curMinX;
-        if (posX > curMaxX) posX = curMaxX;
-        if (posY < curMinY) posY = curMinY;
-        if (posY > curMaxY) posY = curMaxY;
+        if (_posX < curMinX) _posX = curMinX;
+        if (_posX > curMaxX) _posX = curMaxX;
+        if (_posY < curMinY) _posY = curMinY;
+        if (_posY > curMaxY) _posY = curMaxY;
     }
 
-    private void cursorMovement()
+    private void CursorMovement()
     {
         if (!_mainMenu.menuOpen && !_mainMenu.playerIsChoosing)
         {
             DefaultMovement();
 
-            if (restrictedList != null)
+            if (_restrictedList != null)
             {
-                restrictedList = null;
-                restrictedListIndex = -1;
+                _restrictedList = null;
+                _restrictedListIndex = -1;
             }
         }
 
@@ -121,69 +121,32 @@ public class Cursor : MonoBehaviour
 
             if (_mainMenu.attackRoutine)
             {
-                if (restrictedList == null)
+                if (_restrictedList == null)
                 {
-                    restrictedList = new List<Vector2Int>(GameManager.Instance.GetAllEnemiesOrAllies());
-                    restrictedListIndex = 0;
+                    _restrictedList = new List<Vector2Int>(GameManager.Instance.GetAllEnemiesOrAllies());
+                    _restrictedListIndex = 0;
                 }
 
                 if (Input.GetKeyDown(KeyCode.LeftArrow))
                 {
-                    if (restrictedListIndex == 0)
-                        restrictedListIndex = restrictedList.Count - 1;
+                    if (_restrictedListIndex == 0)
+                        _restrictedListIndex = _restrictedList.Count - 1;
                     else
-                        restrictedListIndex--;
+                        _restrictedListIndex--;
                 }
                 if (Input.GetKeyDown(KeyCode.RightArrow))
                 {
-                    if (restrictedListIndex == restrictedList.Count - 1)
-                        restrictedListIndex = 0;
+                    if (_restrictedListIndex == _restrictedList.Count - 1)
+                        _restrictedListIndex = 0;
                     else
-                        restrictedListIndex++;
+                        _restrictedListIndex++;
                 }
 
-                posX = restrictedList[restrictedListIndex].x;
-                posY = restrictedList[restrictedListIndex].y;
+                _posX = _restrictedList[_restrictedListIndex].x;
+                _posY = _restrictedList[_restrictedListIndex].y;
             }
         }
 
-        moveCursor(posX, posY);
-    }
-
-    //private IEnumerator PlayerChoosingTarget()
-    //{
-    //    Debug.Log("Haleluja?");
-    //    if (restrictedList == null)
-    //    {
-    //        restrictedList = new List<Vector2Int>(GameManager.Instance.GetAllEnemiesOrAllies());
-    //        restrictedListIndex = 0;
-    //    }
-    //    //while (_mainMenu.playerIsChoosing)
-    //    //{
-    //    //    if (Input.GetKeyDown(KeyCode.LeftArrow))
-    //    //    {
-    //    //        restrictedListIndex--;
-    //    //        break;
-    //    //    }
-    //    //    if (Input.GetKeyDown(KeyCode.RightArrow))
-    //    //    {
-    //    //        restrictedListIndex++;
-    //    //        break;
-    //    //    }
-
-    //    //    restrictedListIndex %= restrictedList.Count - 1;
-    //    //    posX = restrictedList[restrictedListIndex].x;
-    //    //    posY = restrictedList[restrictedListIndex].y;
-
-    //    //    moveCursor(posX, posY);
-    //    //}
-    //        yield return null;
-
-    //    //_mainMenu.playerIsChoosing = false;
-    //}
-
-    private Vector2Int cursorPosition()
-    {
-        return new Vector2Int(posX, posY);
+        MoveCursor(_posX, _posY);
     }
 }

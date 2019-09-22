@@ -13,8 +13,8 @@ public class Surface : MonoBehaviour
     [SerializeField] int _height;
     [SerializeField] int _width;
 
-    public int getHeight { get { return _height; } }
-    public int getWidth { get { return _width; } }
+    public int GetHeight { get { return _height; } }
+    public int GetWidth { get { return _width; } }
 
     private List<List<Tile>> _tilesOnBoard;
 
@@ -52,7 +52,7 @@ public class Surface : MonoBehaviour
         _tilesOnBoard[xPos][yPos].ChangeTileTexture(newTexture);
     }
 
-    public Tile getFromBoard(int xPos, int yPos)
+    public Tile GetFromBoard(int xPos, int yPos)
     {
         return _tilesOnBoard[xPos][yPos];
     }

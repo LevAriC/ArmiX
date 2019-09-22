@@ -51,7 +51,7 @@ public class Menu : MonoBehaviour
         if (!GameManager.Instance._characterClicked.attackedThisTurn)
         {
             attackRoutine = true;
-            GameManager.Instance._characterClicked.showPossibleMove(true);
+            //GameManager.Instance._characterClicked.showPossibleMove(true);
             ToggleMenu(false);
             StartCoroutine(WaitUntilChosen());
             OnAttackPressedEvent?.Invoke();
@@ -184,20 +184,20 @@ public class Menu : MonoBehaviour
             {
                 var character = GameManager.Instance._characterDictionary[GameManager.Instance._whereClicked];
                 GameManager.Instance._characterEnemyClicked = character;
-                _combatLogic.attackEnemy(GameManager.Instance._characterClicked, GameManager.Instance._characterEnemyClicked);
-                GameManager.Instance._characterClicked.GetAnimator.SetTrigger("isTargetAcquired");
-                GameManager.Instance._characterEnemyClicked.GetAnimator.SetTrigger("isHit");
+                _combatLogic.AttackEnemy(GameManager.Instance._characterClicked, GameManager.Instance._characterEnemyClicked);
+                GameManager.Instance._characterClicked.myAnimator.SetTrigger("isTargetAcquired");
+                GameManager.Instance._characterEnemyClicked.myAnimator.SetTrigger("isHit");
                 GameManager.Instance._characterClicked.attackedThisTurn = true;
-                Cursor.cursorInstance.moveCursor(attackerPos.x, attackerPos.y);
+                Cursor.cursorInstance.MoveCursor(attackerPos.x, attackerPos.y);
             }
             else
             {
                 GameManager.Instance.InvalidCommand = true;
-                Cursor.cursorInstance.moveCursor(attackerPos.x, attackerPos.y);
+                Cursor.cursorInstance.MoveCursor(attackerPos.x, attackerPos.y);
             }
-            GameManager.Instance._characterClicked.showPossibleMove(false);
+            //GameManager.Instance._characterClicked.showPossibleMove(false);
             GameManager.Instance._characterClicked = null;
-            GameManager.Instance._characterEnemyClicked.showPossibleMove(false);
+            //GameManager.Instance._characterEnemyClicked.showPossibleMove(false);
             GameManager.Instance._characterEnemyClicked = null;
 
             stateChanged = true;

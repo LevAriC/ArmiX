@@ -9,16 +9,21 @@ public class Character : MonoBehaviour
     public enum CharacterColors { Blue, Red };
 
     [Header("References")]
-    [SerializeField] Surface _attackSurface;
-    [SerializeField] Surface _movementSurface;
     [SerializeField] Slider _healthSlider;
+    [SerializeField] GameObject _characterPrafab;
 
-    [Header("Variables")]
+    #region Properties
+    [Header("Attributes")]
     [SerializeField] CharacterTypes _characterType;
     [SerializeField] int _strength;
     [SerializeField] int _health;
     [SerializeField] int _movement;
     [SerializeField] int _range;
+
+    public int getStrength { get { return _strength; } }
+    public int getMovement { get { return _movement; } }
+    public int getRange { get { return _range; } }
+    #endregion
 
     #region State
     public bool movedThisTurn { get; set; }
@@ -34,46 +39,22 @@ public class Character : MonoBehaviour
     public bool isDead { get; private set; }
     #endregion
 
-    #region Properties
-    public int getStrength { get { return _strength; } }
-    public int getMovement { get { return _movement; } }
-    public int getRange { get { return _range; } }
+    #region Animation
+    public Animator myAnimator { get; private set; }
     #endregion
 
-    #region Animation
-    [SerializeField] Animator _characterAnimator;
-    public Animator GetAnimator { get { return _characterAnimator; } }
-    #endregion
 
     protected void Awake()
     {
+        myAnimator = _characterPrafab.GetComponent<Animator>();
         movedThisTurn = false;
         ++_characterID;
         getCharacterID = _characterID;
         remainingHealth = _health;
-        updateHUD();
+        UpdateHUD();
     }
 
-    protected void Start()
-    {
-        _attackSurface.SurfaceInit(transform);
-        _attackSurface.gameObject.SetActive(false);
-        _movementSurface.SurfaceInit(transform);
-        _movementSurface.gameObject.SetActive(false);
-        //Menu.menuInstance.OnAttackPressedEvent += () => { _characterAnimator.SetBool("isAttacking", true); };
-    }
-
-    private void AttackHandler()
-    {
-
-    }
-
-    public void showPossibleMove(bool show)
-    {
-        _attackSurface.gameObject.SetActive(show);
-    }
-
-    public void updateHUD()
+    public void UpdateHUD()
     {
         _healthSlider.value = remainingHealth;
     }

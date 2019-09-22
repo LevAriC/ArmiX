@@ -11,6 +11,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ToonSoldiers_scout
       objectReference: {fileID: 0}
+    - target: {fileID: 9589344, guid: 8df00e537d06c7a49b1696af4f1835e4, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 96a2c22ed86096f47b3d0af991f0078f, type: 2}
     - target: {fileID: 436692, guid: 8df00e537d06c7a49b1696af4f1835e4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -67,10 +71,6 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 0.3
       objectReference: {fileID: 0}
-    - target: {fileID: 9589344, guid: 8df00e537d06c7a49b1696af4f1835e4, type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: 96a2c22ed86096f47b3d0af991f0078f, type: 2}
     - target: {fileID: 454796, guid: 8df00e537d06c7a49b1696af4f1835e4, type: 3}
       propertyPath: m_LocalRotation.x
       value: 0.6646334
@@ -81,6 +81,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8df00e537d06c7a49b1696af4f1835e4, type: 3}
+--- !u!1 &3331708979949906429 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 184090, guid: 8df00e537d06c7a49b1696af4f1835e4,
+    type: 3}
+  m_PrefabInstance: {fileID: 3331708979950020327}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &3331708979942536327 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 9589344, guid: 8df00e537d06c7a49b1696af4f1835e4,
@@ -123,6 +129,10 @@ PrefabInstance:
       propertyPath: _characterAnimator
       value: 
       objectReference: {fileID: 3331708979942536327}
+    - target: {fileID: 628141250, guid: b6c6cfeb12b18d140a7539ce654aa409, type: 3}
+      propertyPath: _characterPrafab
+      value: 
+      objectReference: {fileID: 3331708979949906429}
     - target: {fileID: 1517416596373999492, guid: b6c6cfeb12b18d140a7539ce654aa409,
         type: 3}
       propertyPath: m_Value

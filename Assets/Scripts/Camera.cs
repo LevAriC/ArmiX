@@ -6,7 +6,7 @@ public class Camera : MonoBehaviour
 {
     [SerializeField] Transform target;
     [SerializeField] float _lerp;
-    private Vector3 prevPos;
+    private Vector3 _prevPos;
     private Character.CharacterColors _prevColor;
 
     private float _x;
@@ -27,7 +27,7 @@ public class Camera : MonoBehaviour
         _yy = 1f;
         _zz = 1f;
 
-        prevPos = transform.position;
+        _prevPos = transform.position;
     }
 
     protected void Start()
@@ -48,7 +48,7 @@ public class Camera : MonoBehaviour
         transform.position = target.position + new Vector3(_x, _y, _z);
         //transform.position = Vector3.Lerp(prevPos, target.position + new Vector3(_x, _y, _z), _lerp);
         transform.LookAt(LookHere());
-        prevPos = transform.position;
+        _prevPos = transform.position;
     }
 
     private Vector3 LookHere()
