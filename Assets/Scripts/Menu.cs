@@ -115,9 +115,11 @@ public class Menu : MonoBehaviour
             playerIsChoosing = false;
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape) && menuOpen)
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            ToggleMenu(false);
+            AbortChoice();
+            if (GameManager.Instance._characterClicked != null)
+                Cursor.cursorInstance.MoveCursor(GameManager.Instance._whereClicked.x, GameManager.Instance._whereClicked.y);
         }
     }
 
@@ -133,17 +135,11 @@ public class Menu : MonoBehaviour
     {
         if(!GameManager.Instance.GameOver)
         {
-            if (GameManager.Instance.CurrentPlayer == Character.CharacterColors.Blue)
-                _turnText.GetComponent<Text>().text = "Blue Turn";
-            else
-                _turnText.GetComponent<Text>().text = "Red Turn";
+            _turnText.GetComponent<Text>().text = GameManager.Instance.CurrentPlayer.ToString() + " Turn";
         }
         else
         {
-            if (GameManager.Instance.CurrentPlayer == Character.CharacterColors.Blue)
-                _turnText.GetComponent<Text>().text = "Blue Wins!";
-            else
-                _turnText.GetComponent<Text>().text = "Red Wins!";
+            _turnText.GetComponent<Text>().text = GameManager.Instance.CurrentPlayer.ToString() + " Won!!";
         }
     }
 
@@ -217,6 +213,11 @@ public class Menu : MonoBehaviour
             }
         }
 
+        AbortChoice();
+    }
+
+    private void AbortChoice()
+    {
         playerIsChoosing = false;
         ToggleMenu(false);
         RoutinesReset();

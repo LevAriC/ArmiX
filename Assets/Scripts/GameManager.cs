@@ -24,8 +24,8 @@ public class GameManager : MonoBehaviour
     public bool GameOver { get; private set; }
     public bool InvalidCommand { get; set; }
     private int _leftThisTurn;
-    private int _blueLeft;
-    private int _redLeft;
+    private int _playerOneLeft;
+    private int _playerTwoLeft;
     private Vector2Int _RIP;
     #endregion
 
@@ -74,13 +74,13 @@ public class GameManager : MonoBehaviour
             var newCharacter = Instantiate(_characterTypes[i % _charactersPerPlayer]);
             if (i < _charactersPerPlayer)
             {
-                newCharacter.SetColor(Character.CharacterColors.Blue);
+                newCharacter.SetColor(Character.CharacterColors.Brown);
                 _gameBoard.SetCharacterOnBoard(i, 0, newCharacter);
                 _characterDictionary.Add(new Vector2Int(i, 0), newCharacter);
             }
             else
             {
-                newCharacter.SetColor(Character.CharacterColors.Red);
+                newCharacter.SetColor(Character.CharacterColors.Yellow);
                 newCharacter.transform.rotation = Quaternion.Euler(0, 180, 0);
                 _gameBoard.SetCharacterOnBoard(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1, newCharacter);
                 _characterDictionary.Add(new Vector2Int(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1), newCharacter);
@@ -144,7 +144,7 @@ public class GameManager : MonoBehaviour
             }
             if (_leftThisTurn <= 0)
             {
-                _leftThisTurn = CurrentPlayer == Character.CharacterColors.Blue ? _blueLeft : _redLeft;
+                _leftThisTurn = CurrentPlayer == Character.CharacterColors.Blue ? _playerOneLeft : _playerTwoLeft;
                 CurrentPlayer = CurrentPlayer == Character.CharacterColors.Red ? Character.CharacterColors.Blue : Character.CharacterColors.Red;
                 foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
                 {
@@ -163,19 +163,19 @@ public class GameManager : MonoBehaviour
         CurrentPlayer = Random.value > 0.5f ? Character.CharacterColors.Blue : Character.CharacterColors.Red;
         GameOver = false;
         _leftThisTurn = _charactersPerPlayer;
-        _blueLeft = _charactersPerPlayer;
-        _redLeft = _charactersPerPlayer;
+        _playerOneLeft = _charactersPerPlayer;
+        _playerTwoLeft = _charactersPerPlayer;
         _RIP = new Vector2Int(-1, -1);
     }
 
     private bool GameIsOver(Character.CharacterColors color)
     {
         if (color == Character.CharacterColors.Red)
-            _redLeft--;
+            _playerTwoLeft--;
         else
-            _blueLeft--;
+            _playerOneLeft--;
 
-        if (_redLeft <= 0 || _blueLeft <= 0)
+        if (_playerTwoLeft <= 0 || _playerOneLeft <= 0)
             return GameOver = true;
 
         return false;
