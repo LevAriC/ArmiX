@@ -74,13 +74,13 @@ public class GameManager : MonoBehaviour
             var newCharacter = Instantiate(_characterTypes[i % _charactersPerPlayer]);
             if (i < _charactersPerPlayer)
             {
-                newCharacter.myColor = Character.CharacterColors.Blue;
+                newCharacter.SetColor(Character.CharacterColors.Blue);
                 _gameBoard.SetCharacterOnBoard(i, 0, newCharacter);
                 _characterDictionary.Add(new Vector2Int(i, 0), newCharacter);
             }
             else
             {
-                newCharacter.myColor = Character.CharacterColors.Red;
+                newCharacter.SetColor(Character.CharacterColors.Red);
                 newCharacter.transform.rotation = Quaternion.Euler(0, 180, 0);
                 _gameBoard.SetCharacterOnBoard(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1, newCharacter);
                 _characterDictionary.Add(new Vector2Int(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1), newCharacter);

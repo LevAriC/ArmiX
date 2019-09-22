@@ -291,15 +291,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ffbe756fc40ded4fa074e4f0231195c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _attackSurface: {fileID: 754951930}
-  _movementSurface: {fileID: 5003169899260980827}
+  _colorMaterials:
+  - {fileID: 2100000, guid: c2c258a5c8a13e240a1f598657d70330, type: 2}
+  - {fileID: 2100000, guid: b599c004b71afff4d9318c349bbb7d53, type: 2}
+  - {fileID: 2100000, guid: 3425698b8034fe74788abb704c8f8077, type: 2}
+  - {fileID: 2100000, guid: 7929546bc2696e1438b73107df2b14f1, type: 2}
+  - {fileID: 2100000, guid: 9a9740cc973bfe844b5608d85a64fa11, type: 2}
+  - {fileID: 2100000, guid: 530d6d9ff8e3ac94195d5aa36a098fcb, type: 2}
+  - {fileID: 2100000, guid: 6b6f9aa5988075448baf9b78830fa582, type: 2}
+  - {fileID: 2100000, guid: 5d1bfd22e7fe7e14c8a95db8f332a3ae, type: 2}
+  - {fileID: 2100000, guid: 7ea467a8a39159544a49e880768006bc, type: 2}
+  _characterPrafab: {fileID: 0}
   _healthSlider: {fileID: 1517416596373999492}
   _characterType: 0
   _strength: 0
   _health: 0
   _movement: 0
   _range: 0
-  _characterAnimator: {fileID: 0}
 --- !u!1 &4732448273229595014
 GameObject:
   m_ObjectHideFlags: 0

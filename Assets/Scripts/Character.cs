@@ -6,11 +6,12 @@ using UnityEngine.UI;
 public class Character : MonoBehaviour
 {
     public enum CharacterTypes { MachineGun, Sniper, Agent };
-    public enum CharacterColors { Blue, Red };
+    public enum CharacterColors { Blue, Red, Black, Brown, Green, Grey, Olive, White, Yellow };
 
     [Header("References")]
-    [SerializeField] Slider _healthSlider;
+    [SerializeField] Material[] _colorMaterials;
     [SerializeField] GameObject _characterPrafab;
+    [SerializeField] Slider _healthSlider;
 
     #region Properties
     [Header("Attributes")]
@@ -33,16 +34,24 @@ public class Character : MonoBehaviour
     #endregion
 
     #region ID
-    public CharacterColors myColor { get; set; }
+    public CharacterColors myColor { get; private set; }
     private static int _characterID = 0;
     public int getCharacterID { get; private set; }
     public bool isDead { get; private set; }
     #endregion
 
-    #region Animation
+    #region Graphics
     public Animator myAnimator { get; private set; }
     #endregion
 
+    public void SetColor(CharacterColors newColor)
+    {
+        var mrList = _characterPrafab.GetComponentsInChildren<SkinnedMeshRenderer>();
+        foreach (var mr in mrList)
+            mr.material = _colorMaterials[(int)newColor];
+
+        myColor = newColor;
+    }
 
     protected void Awake()
     {
