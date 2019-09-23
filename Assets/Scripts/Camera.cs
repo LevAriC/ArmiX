@@ -33,8 +33,8 @@ public class Camera : MonoBehaviour
     protected void Start()
     {
         _prevColor = GameManager.Instance.CurrentPlayer;
-        _z = _prevColor == Character.CharacterColors.Blue ? _z : -_z;
-        _zz = _prevColor == Character.CharacterColors.Blue ? _zz : -_zz;
+        _z = _prevColor == GameManager.Instance.PlayerOneColor ? _z : -_z;
+        _zz = _prevColor == GameManager.Instance.PlayerOneColor ? _zz : -_zz;
     }
     protected void Update()
     {

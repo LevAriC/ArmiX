@@ -5,8 +5,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Menu : MonoBehaviour
+public class GUI : MonoBehaviour
 {
+    public enum CharacterTypes { MachineGun, Sniper, Agent };
+
     [SerializeField] Combat _combatLogic;
     [SerializeField] Text _turnText;
     [SerializeField] Canvas _combatMenu;
@@ -35,7 +37,15 @@ public class Menu : MonoBehaviour
     public bool attackRoutine { get; private set; }
     public bool overwatchRoutine { get; private set; }
 
-    public static Menu menuInstance { get; private set; }
+    public static GUI menuInstance { get; private set; }
+
+    public void ColorChosen(int color)
+    {
+        if (GameManager.Instance.PlayerOneColor == Character.CharacterColors.None)
+            GameManager.Instance.PlayerOneColor = (Character.CharacterColors)color;
+        else
+            GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)color;
+    }
 
     private void OnMoveClicked()
     {

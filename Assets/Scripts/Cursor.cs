@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Cursor : MonoBehaviour
 {
-    [SerializeField] Menu _mainMenu;
+    [SerializeField] GUI _mainMenu;
     private Character.CharacterColors _currentColor;
     private List<Vector2Int> _restrictedList;
     private Tile _currentTile;
@@ -30,7 +30,7 @@ public class Cursor : MonoBehaviour
         _maxX = GameManager.Instance.GetBoard.GetWidth - 1;
         _maxY = GameManager.Instance.GetBoard.GetHeight - 1;
 
-        if(_currentColor == Character.CharacterColors.Blue)
+        if(_currentColor == GameManager.Instance.PlayerOneColor) 
         {
             _posX = 0;
             _posY = 0;
@@ -77,16 +77,16 @@ public class Cursor : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
             if (_posY < curMaxY || _posY > curMinY)
-                _posY += _currentColor == Character.CharacterColors.Blue ? 1 : -1;
+                _posY += _currentColor == GameManager.Instance.PlayerOneColor ? 1 : -1;
         if (Input.GetKeyDown(KeyCode.DownArrow))
             if(_posY > curMinY || _posY < curMaxY)
-                _posY += _currentColor == Character.CharacterColors.Blue ? -1 : 1;
+                _posY += _currentColor == GameManager.Instance.PlayerOneColor ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.LeftArrow))
             if(_posX > curMinX || _posX < curMaxX)
-                _posX += _currentColor == Character.CharacterColors.Blue ? -1 : 1;
+                _posX += _currentColor == GameManager.Instance.PlayerOneColor ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.RightArrow))
             if(_posX < curMaxX || _posX > curMinX)
-                _posX += _currentColor == Character.CharacterColors.Blue ? 1 : -1;
+                _posX += _currentColor == GameManager.Instance.PlayerOneColor ? 1 : -1;
 
         if (_posX < curMinX) _posX = curMinX;
         if (_posX > curMaxX) _posX = curMaxX;

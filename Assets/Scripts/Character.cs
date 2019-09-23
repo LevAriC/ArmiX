@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class Character : MonoBehaviour
 {
     public enum CharacterTypes { MachineGun, Sniper, Agent };
-    public enum CharacterColors { Blue, Red, Black, Brown, Green, Grey, Olive, White, Yellow };
+    public enum CharacterColors { Blue, Red, Black, Brown, Green, Grey, Olive, White, Yellow, None};
 
     [Header("References")]
     [SerializeField] Material[] _colorMaterials;
