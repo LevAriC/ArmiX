@@ -135,7 +135,7 @@ public class GUI : MonoBehaviour
 
     private bool IsMyTurn()
     {
-        if (GameManager.Instance._characterClicked && GameManager.Instance._characterClicked.myColor == GameManager.Instance.CurrentPlayer)
+        if (GameManager.Instance._characterClicked && GameManager.Instance._characterClicked.IsPlayerOne == GameManager.Instance.IsPlayerOneTurn)
             return true;
         else
             return false;
@@ -145,11 +145,11 @@ public class GUI : MonoBehaviour
     {
         if(!GameManager.Instance.GameOver)
         {
-            _turnText.GetComponent<Text>().text = GameManager.Instance.CurrentPlayer.ToString() + " Turn";
+            _turnText.GetComponent<Text>().text = GameManager.Instance.IsPlayerOneTurn.ToString() + " Turn";
         }
         else
         {
-            _turnText.GetComponent<Text>().text = GameManager.Instance.CurrentPlayer.ToString() + " Won!!";
+            _turnText.GetComponent<Text>().text = GameManager.Instance.IsPlayerOneTurn.ToString() + " Won!!";
         }
     }
 

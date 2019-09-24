@@ -35,6 +35,7 @@ public class Character : MonoBehaviour
 
     #region ID
     public CharacterColors myColor { get; private set; }
+    public bool IsPlayerOne { get; set; }
     private static int _characterID = 0;
     public int getCharacterID { get; private set; }
     public bool isDead { get; private set; }
@@ -60,6 +61,7 @@ public class Character : MonoBehaviour
         ++_characterID;
         getCharacterID = _characterID;
         remainingHealth = _health;
+
         UpdateHUD();
     }
 

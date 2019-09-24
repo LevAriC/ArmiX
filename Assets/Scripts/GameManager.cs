@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Turns Management
-    public Character.CharacterColors CurrentPlayer { get; private set; }
+    public bool IsPlayerOneTurn { get; private set; }
     public Character.CharacterColors PlayerOneColor { get; set; }
     public Character.CharacterColors PlayerTwoColor { get; set; }
     public bool GameOver { get; private set; }
@@ -78,13 +78,14 @@ public class GameManager : MonoBehaviour
             var newCharacter = Instantiate(_characterTypes[i % _charactersPerPlayer]);
             if (i < _charactersPerPlayer)
             {
-                newCharacter.SetColor(PlayerOneColor);
+                newCharacter.IsPlayerOne = true;
                 _gameBoard.SetCharacterOnBoard(i, 0, newCharacter);
                 _characterDictionary.Add(new Vector2Int(i, 0), newCharacter);
             }
             else
             {
-                newCharacter.SetColor(PlayerTwoColor);
+                //newCharacter.SetColor(PlayerTwoColor);
+                newCharacter.IsPlayerOne = false;
                 newCharacter.transform.rotation = Quaternion.Euler(0, 180, 0);
                 _gameBoard.SetCharacterOnBoard(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1, newCharacter);
                 _characterDictionary.Add(new Vector2Int(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1), newCharacter);
@@ -97,11 +98,11 @@ public class GameManager : MonoBehaviour
         List<Vector2Int> tmpList = new List<Vector2Int>();
         foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
         {
-            if (alive.Value.myColor != PlayerTwoColor && CurrentPlayer == PlayerTwoColor)
+            if (alive.Value.myColor != PlayerTwoColor && !IsPlayerOneTurn)
             {
                 tmpList.Add(alive.Key);
             }
-            if (alive.Value.myColor == PlayerTwoColor && CurrentPlayer != PlayerTwoColor)
+            if (alive.Value.myColor == PlayerTwoColor && IsPlayerOneTurn)
             {
                 tmpList.Add(alive.Key);
             }
@@ -121,7 +122,7 @@ public class GameManager : MonoBehaviour
                     alive.Value.UpdateStatus();
                     if (alive.Value.isDead)
                     {
-                        if (!GameIsOver(alive.Value.myColor))
+                        if (!GameIsOver(alive.Value.IsPlayerOne))
                         {
                             _RIP = alive.Key;
                             Destroy(alive.Value.gameObject);
@@ -148,11 +149,11 @@ public class GameManager : MonoBehaviour
             }
             if (_leftThisTurn <= 0)
             {
-                _leftThisTurn = CurrentPlayer == PlayerOneColor ? _playerOneLeft : _playerTwoLeft;
-                CurrentPlayer = CurrentPlayer == PlayerTwoColor ? PlayerOneColor : PlayerTwoColor;
+                _leftThisTurn = IsPlayerOneTurn ? _playerOneLeft : _playerTwoLeft;
+                IsPlayerOneTurn = !IsPlayerOneTurn;
                 foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
                 {
-                    if (alive.Value.myColor == CurrentPlayer)
+                    if (alive.Value.IsPlayerOne == IsPlayerOneTurn || !(alive.Value.IsPlayerOne) == !IsPlayerOneTurn)
                     {
                         Cursor.cursorInstance.MoveCursor(alive.Key.x, alive.Key.x);
                         break;
@@ -164,7 +165,7 @@ public class GameManager : MonoBehaviour
 
     private void GameInit()
     {
-        CurrentPlayer = Random.value > 0.5f ? PlayerOneColor : PlayerTwoColor;
+        IsPlayerOneTurn = Random.value > 0.5f ? true : false;
         GameOver = false;
         _leftThisTurn = _charactersPerPlayer;
         _playerOneLeft = _charactersPerPlayer;
@@ -172,12 +173,12 @@ public class GameManager : MonoBehaviour
         _RIP = new Vector2Int(-1, -1);
     }
 
-    private bool GameIsOver(Character.CharacterColors color)
+    private bool GameIsOver(bool player)
     {
-        if (color == PlayerTwoColor)
-            _playerTwoLeft--;
-        else
+        if (player)
             _playerOneLeft--;
+        else
+            _playerTwoLeft--;
 
         if (_playerTwoLeft <= 0 || _playerOneLeft <= 0)
             return GameOver = true;

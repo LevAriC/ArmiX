@@ -32,15 +32,13 @@ public class Camera : MonoBehaviour
 
     protected void Start()
     {
-        _prevColor = GameManager.Instance.CurrentPlayer;
-        _z = _prevColor == GameManager.Instance.PlayerOneColor ? _z : -_z;
-        _zz = _prevColor == GameManager.Instance.PlayerOneColor ? _zz : -_zz;
+        _z = GameManager.Instance.IsPlayerOneTurn ? _z : -_z;
+        _zz = GameManager.Instance.IsPlayerOneTurn ? _zz : -_zz;
     }
     protected void Update()
     {
-        if (_prevColor != GameManager.Instance.CurrentPlayer)
+        if (!GameManager.Instance.IsPlayerOneTurn)
         {
-            _prevColor = GameManager.Instance.CurrentPlayer;
             _z = -_z;
             _zz = -_zz;
         }
