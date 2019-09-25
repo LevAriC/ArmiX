@@ -44,8 +44,8 @@ public class GameManager : MonoBehaviour
     protected void Awake()
     {
         Instance = this;
-        PlayerOneColor = Character.CharacterColors.Black;
-        PlayerTwoColor = Character.CharacterColors.Red;
+        PlayerOneColor = Character.CharacterColors.None;
+        PlayerTwoColor = Character.CharacterColors.None;
         _restartButton.gameObject.SetActive(false);
         GameInit();
         _characterDictionary = new Dictionary<Vector2Int, Character>();
@@ -173,6 +173,7 @@ public class GameManager : MonoBehaviour
                 GUI.stateChanged = false;
                 _leftThisTurn--;
             }
+
             if (_leftThisTurn <= 0)
             {
                 _leftThisTurn = !IsPlayerOneTurn ? _playerOneLeft : _playerTwoLeft;

@@ -1619,6 +1619,12 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 778674931}
   m_CullTransparentMesh: 0
+--- !u!1 &799067544 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2637649228574126897, guid: 45f78a16563bb5441bd36ae5c94fb552,
+    type: 3}
+  m_PrefabInstance: {fileID: 924146679}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &828320101
 GameObject:
   m_ObjectHideFlags: 0
@@ -1822,7 +1828,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: MultiPlayer
+  m_Text: Multiplayer
 --- !u!222 &856883406
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3595,6 +3601,7 @@ MonoBehaviour:
   - {fileID: 828320101}
   - {fileID: 937575931}
   - {fileID: 924146681}
+  _multiplayerPanel: {fileID: 799067544}
 --- !u!1 &1798339944
 GameObject:
   m_ObjectHideFlags: 0
@@ -3665,7 +3672,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: SinglePlayer
+  m_Text: Singleplayer
 --- !u!222 &1798339947
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4148,7 +4155,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2135111948}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1647836834}
+        m_MethodName: ChangeToScreen
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Multiplayer
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &2135111948

@@ -10,6 +10,7 @@ public class StartMenu : MonoBehaviour
     [SerializeField] EventSystem _eventSystem;
     [SerializeField] GameObject[] _screens;
     [SerializeField] GameObject[] _firstButton;
+    [SerializeField] GameObject _multiplayerPanel;
 
     private enum MenuScreen { MainMenu, Singleplayer, Multiplayer, Options, Loading };
     private MenuScreen _currentScreen;
@@ -61,13 +62,22 @@ public class StartMenu : MonoBehaviour
             }
             else
             {
+                var buttons= _multiplayerPanel.GetComponentsInChildren<Button>();
+                foreach(var toDisable in buttons)
+                {
+                    if (toDisable.name == GameManager.Instance.PlayerOneColor.ToString())
+                        toDisable.interactable = false;
+                }
+
                 GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)color;
             }
         }
         else
         {
+
             GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)color;
         }
+
         ChangeScreenLogic(MenuScreen.Loading);
     }
 }
