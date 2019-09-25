@@ -27,6 +27,7 @@ public class GUI : MonoBehaviour
     public bool targetChoosed { get; set; }
     #endregion
 
+    #region Actions
     public event Action MenuOpenedEvent;
     public event Action MoveCharacterEvent;
     public event Action AttackPressedEvent;
@@ -36,6 +37,8 @@ public class GUI : MonoBehaviour
     public bool moveRoutine { get; private set; }
     public bool attackRoutine { get; private set; }
     public bool overwatchRoutine { get; private set; }
+    #endregion
+
 
     public static GUI menuInstance { get; private set; }
 
@@ -188,8 +191,11 @@ public class GUI : MonoBehaviour
             if (GameManager.Instance.IsCharacterHere())
             {
                 var character = GameManager.Instance._characterDictionary[GameManager.Instance._whereClicked];
+                var defenderPos = GameManager.Instance._whereClicked;
+                int distance = (int)Math.Floor(Math.Sqrt(attackerPos.x + defenderPos.x) + Math.Sqrt(attackerPos.y + defenderPos.y));
+
                 GameManager.Instance._characterEnemyClicked = character;
-                _combatLogic.AttackEnemy(GameManager.Instance._characterClicked, GameManager.Instance._characterEnemyClicked);
+                _combatLogic.AttackEnemy(GameManager.Instance._characterClicked, GameManager.Instance._characterEnemyClicked, distance);
                 GameManager.Instance._characterClicked.myAnimator.SetTrigger("isTargetAcquired");
                 GameManager.Instance._characterEnemyClicked.myAnimator.SetTrigger("isHit");
                 GameManager.Instance._characterClicked.attackedThisTurn = true;

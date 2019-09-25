@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Combat : MonoBehaviour
 {
-    public void AttackEnemy(Character attacker, Character defender)
+    public void AttackEnemy(Character attacker, Character defender, int distance)
     {
-        defender.remainingHealth -= attacker.getStrength; 
+        defender.remainingHealth -= (int)(attacker.getStrength - distance); 
     }
 }

@@ -133,6 +133,10 @@ PrefabInstance:
       propertyPath: _characterPrafab
       value: 
       objectReference: {fileID: 3331708979949906429}
+    - target: {fileID: 628141250, guid: b6c6cfeb12b18d140a7539ce654aa409, type: 3}
+      propertyPath: _accuracy
+      value: 0.95
+      objectReference: {fileID: 0}
     - target: {fileID: 1517416596373999492, guid: b6c6cfeb12b18d140a7539ce654aa409,
         type: 3}
       propertyPath: m_Value

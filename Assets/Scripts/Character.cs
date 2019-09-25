@@ -20,6 +20,7 @@ public class Character : MonoBehaviour
     [SerializeField] int _health;
     [SerializeField] int _movement;
     [SerializeField] int _range;
+    [SerializeField] float _accuracy;
 
     public int getStrength { get { return _strength; } }
     public int getMovement { get { return _movement; } }
