@@ -44,7 +44,8 @@ public class Cursor : MonoBehaviour
 
     protected void Update()
     {
-        CursorMovement();
+        if(GameManager.Instance.GameStarted)
+            CursorMovement();
     }
 
     public void MoveCursor(int x, int y)

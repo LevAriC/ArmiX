@@ -13,8 +13,6 @@ public class StartMenu : MonoBehaviour
 
     private enum MenuScreen { MainMenu, Singleplayer, Multiplayer, Options, Loading };
     private MenuScreen _currentScreen;
-    private MenuScreen _prevScreen;
-    private bool _gameStart;
 
     protected void Awake()
     {
@@ -39,18 +37,38 @@ public class StartMenu : MonoBehaviour
     {
         _screens[(int)_currentScreen].SetActive(false);
 
-        if (newScreen == MenuScreen.Options)
-            _prevScreen = _currentScreen;
-
-        if (_currentScreen == MenuScreen.Options)
-            newScreen = _prevScreen;
+        if (newScreen == MenuScreen.Loading)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
 
         _screens[(int)newScreen].SetActive(true);
         _currentScreen = newScreen;
         _eventSystem.SetSelectedGameObject(_firstButton[(int)newScreen].gameObject);
 
-        if (newScreen == MenuScreen.Loading)
-            _gameStart = true;
     }
-    //public string setTurnText { set { _turnText.GetComponent<Text>().text = value; } }
+
+    public void ColorChosen(int color)
+    {
+        if (GameManager.Instance.PlayerOneColor == Character.CharacterColors.None)
+        {
+            GameManager.Instance.PlayerOneColor = (Character.CharacterColors)color;
+
+            if (_currentScreen == MenuScreen.Singleplayer)
+            {
+                GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)UnityEngine.Random.Range(0, 9);
+            }
+            else
+            {
+                GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)color;
+            }
+        }
+        else
+        {
+            GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)color;
+        }
+        ChangeScreenLogic(MenuScreen.Loading);
+    }
 }
+    //public string setTurnText { set { _turnText.GetComponent<Text>().text = value; } }

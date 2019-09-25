@@ -27,25 +27,17 @@ public class GUI : MonoBehaviour
     public bool targetChoosed { get; set; }
     #endregion
 
-    public event Action OnMenuOpenedEvent;
-    public event Action OnMoveCharacterEvent;
-    public event Action OnAttackPressedEvent;
-    public event Action OnTargetAcquiredEvent;
-    public event Action OnOverwatchEvent;
+    public event Action MenuOpenedEvent;
+    public event Action MoveCharacterEvent;
+    public event Action AttackPressedEvent;
+    public event Action TargetAcquiredEvent;
+    public event Action OverwatchEvent;
 
     public bool moveRoutine { get; private set; }
     public bool attackRoutine { get; private set; }
     public bool overwatchRoutine { get; private set; }
 
     public static GUI menuInstance { get; private set; }
-
-    public void ColorChosen(int color)
-    {
-        if (GameManager.Instance.PlayerOneColor == Character.CharacterColors.None)
-            GameManager.Instance.PlayerOneColor = (Character.CharacterColors)color;
-        else
-            GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)color;
-    }
 
     private void OnMoveClicked()
     {
@@ -64,7 +56,7 @@ public class GUI : MonoBehaviour
             //GameManager.Instance._characterClicked.showPossibleMove(true);
             ToggleMenu(false);
             StartCoroutine(WaitUntilChosen());
-            OnAttackPressedEvent?.Invoke();
+            AttackPressedEvent?.Invoke();
         }
     }
     private void OnOverwatchClicked()
@@ -99,7 +91,8 @@ public class GUI : MonoBehaviour
 
     protected void FixedUpdate()
     {
-        TurnText();
+        if(GameManager.Instance.GameStarted)
+            TurnText();
     }
 
     public void MenuController()
@@ -145,11 +138,17 @@ public class GUI : MonoBehaviour
     {
         if(!GameManager.Instance.GameOver)
         {
-            _turnText.GetComponent<Text>().text = GameManager.Instance.IsPlayerOneTurn.ToString() + " Turn";
+            if (GameManager.Instance.IsPlayerOneTurn)
+                _turnText.GetComponent<Text>().text = GameManager.Instance.PlayerOneColor.ToString() + " Turn";
+            else
+                _turnText.GetComponent<Text>().text = GameManager.Instance.PlayerTwoColor.ToString() + " Turn";
         }
         else
         {
-            _turnText.GetComponent<Text>().text = GameManager.Instance.IsPlayerOneTurn.ToString() + " Won!!";
+            if (GameManager.Instance.IsPlayerOneTurn)
+                _turnText.GetComponent<Text>().text = GameManager.Instance.PlayerOneColor.ToString() + " Won!!";
+            else
+                _turnText.GetComponent<Text>().text = GameManager.Instance.PlayerTwoColor.ToString() + " Won!!";
         }
     }
 
@@ -173,7 +172,7 @@ public class GUI : MonoBehaviour
         {
             if (!GameManager.Instance.IsCharacterHere())
             {
-                OnMoveCharacterEvent?.Invoke();
+                MoveCharacterEvent?.Invoke();
                 GameManager.Instance._characterClicked.movedThisTurn = true;
             }
             else
@@ -213,7 +212,7 @@ public class GUI : MonoBehaviour
         {
             if (!GameManager.Instance.IsCharacterHere())
             {
-                OnOverwatchEvent?.Invoke();
+                OverwatchEvent?.Invoke();
                 GameManager.Instance._characterClicked.overwatchedThisTurn = true;
             }
             else

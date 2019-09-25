@@ -23,8 +23,10 @@ public class GameManager : MonoBehaviour
     public bool IsPlayerOneTurn { get; private set; }
     public Character.CharacterColors PlayerOneColor { get; set; }
     public Character.CharacterColors PlayerTwoColor { get; set; }
+    public bool GameStarted { get; private set; }
     public bool GameOver { get; private set; }
     public bool InvalidCommand { get; set; }
+    private bool _choosingColor;
     private int _leftThisTurn;
     private int _playerOneLeft;
     private int _playerTwoLeft;
@@ -42,8 +44,8 @@ public class GameManager : MonoBehaviour
     protected void Awake()
     {
         Instance = this;
-        PlayerOneColor = Character.CharacterColors.Black;
-        PlayerTwoColor = Character.CharacterColors.Yellow;
+        PlayerOneColor = Character.CharacterColors.Olive;
+        PlayerTwoColor = Character.CharacterColors.Brown;
         _restartButton.gameObject.SetActive(false);
         GameInit();
         _characterDictionary = new Dictionary<Vector2Int, Character>();
@@ -53,21 +55,25 @@ public class GameManager : MonoBehaviour
     {
         _gameBoard.SurfaceInit(transform);
         SpawnCharacter();
-        GUI.menuInstance.OnMoveCharacterEvent += OnPlayerMoveCharacter;
-        GUI.menuInstance.OnOverwatchEvent += OnCharacterOverwatchingTile;
-        GUI.menuInstance.OnAttackPressedEvent += () => _characterClicked.myAnimator.SetTrigger("isAttacking");
+        GUI.menuInstance.MoveCharacterEvent += OnPlayerMoveCharacter;
+        GUI.menuInstance.OverwatchEvent += OnCharacterOverwatchingTile;
+        GUI.menuInstance.AttackPressedEvent += () => _characterClicked.myAnimator.SetTrigger("isAttacking");
+        StartCoroutine(PlayersChoosingColor());
     }
 
     protected void Update()
     {
-        if(!GameOver)
+        if(GameStarted)
         {
-            GUI.menuInstance.MenuController();
-            TurnManagement();
-        }
-        else if (GameOver)
-        {
-            _restartButton.gameObject.SetActive(true);
+            if(!GameOver)
+            {
+                GUI.menuInstance.MenuController();
+                TurnManagement();
+            }
+            else if (GameOver)
+            {
+                _restartButton.gameObject.SetActive(true);
+            }
         }
     }
 
@@ -84,13 +90,43 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                //newCharacter.SetColor(PlayerTwoColor);
                 newCharacter.IsPlayerOne = false;
                 newCharacter.transform.rotation = Quaternion.Euler(0, 180, 0);
                 _gameBoard.SetCharacterOnBoard(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1, newCharacter);
                 _characterDictionary.Add(new Vector2Int(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1), newCharacter);
             }
         }
+    }
+
+    private IEnumerator PlayersChoosingColor()
+    {
+        _choosingColor = true;
+        while (_choosingColor)
+        {
+            if (PlayerOneColor != Character.CharacterColors.None && PlayerTwoColor != Character.CharacterColors.None)
+                _choosingColor = false;
+            yield return null;
+        }
+
+        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+        {
+            if (alive.Value.IsPlayerOne)
+                alive.Value.SetColor(PlayerOneColor);
+            else
+                alive.Value.SetColor(PlayerTwoColor);
+        }
+
+        GameStarted = true;
+    }
+
+    private void GameInit()
+    {
+        IsPlayerOneTurn = Random.value > 0.5f ? true : false;
+        GameOver = false;
+        _leftThisTurn = _charactersPerPlayer;
+        _playerOneLeft = _charactersPerPlayer;
+        _playerTwoLeft = _charactersPerPlayer;
+        _RIP = new Vector2Int(-1, -1);
     }
 
     public List<Vector2Int> GetAllEnemiesOrAllies()
@@ -162,16 +198,6 @@ public class GameManager : MonoBehaviour
             }
         }
     } 
-
-    private void GameInit()
-    {
-        IsPlayerOneTurn = Random.value > 0.5f ? true : false;
-        GameOver = false;
-        _leftThisTurn = _charactersPerPlayer;
-        _playerOneLeft = _charactersPerPlayer;
-        _playerTwoLeft = _charactersPerPlayer;
-        _RIP = new Vector2Int(-1, -1);
-    }
 
     private bool GameIsOver(bool player)
     {

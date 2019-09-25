@@ -7,7 +7,7 @@ public class Camera : MonoBehaviour
     [SerializeField] Transform target;
     [SerializeField] float _lerp;
     private Vector3 _prevPos;
-    private Character.CharacterColors _prevColor;
+    private bool _prevTurn;
 
     private float _x;
     private float _y;
@@ -32,21 +32,29 @@ public class Camera : MonoBehaviour
 
     protected void Start()
     {
+        _prevTurn = GameManager.Instance.IsPlayerOneTurn;
         _z = GameManager.Instance.IsPlayerOneTurn ? _z : -_z;
         _zz = GameManager.Instance.IsPlayerOneTurn ? _zz : -_zz;
     }
     protected void Update()
     {
-        if (!GameManager.Instance.IsPlayerOneTurn)
+        if(GameManager.Instance.GameStarted)
         {
-            _z = -_z;
-            _zz = -_zz;
-        }
+            if (_prevTurn != GameManager.Instance.IsPlayerOneTurn)
+            {
+                _prevTurn = GameManager.Instance.IsPlayerOneTurn;
+                _z = -_z;
+                _zz = -_zz;
+            }
 
-        transform.position = target.position + new Vector3(_x, _y, _z);
-        //transform.position = Vector3.Lerp(prevPos, target.position + new Vector3(_x, _y, _z), _lerp);
-        transform.LookAt(LookHere());
-        _prevPos = transform.position;
+            if(!GUI.menuInstance.attackRoutine)
+            {
+                transform.position = target.position + new Vector3(_x, _y, _z);
+                //transform.position = Vector3.Lerp(prevPos, target.position + new Vector3(_x, _y, _z), _lerp);
+                transform.LookAt(LookHere());
+                _prevPos = transform.position;
+            }
+        }
     }
 
     private Vector3 LookHere()
