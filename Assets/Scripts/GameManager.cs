@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
     private int _leftThisTurn;
     private int _playerOneLeft;
     private int _playerTwoLeft;
-    private Vector2Int _RIP;
+    //private Vector2Int _RIP;
     #endregion
 
     #region Click Detectors
@@ -44,8 +44,8 @@ public class GameManager : MonoBehaviour
     protected void Awake()
     {
         Instance = this;
-        PlayerOneColor = Character.CharacterColors.Olive;
-        PlayerTwoColor = Character.CharacterColors.Brown;
+        PlayerOneColor = Character.CharacterColors.Black;
+        PlayerTwoColor = Character.CharacterColors.Red;
         _restartButton.gameObject.SetActive(false);
         GameInit();
         _characterDictionary = new Dictionary<Vector2Int, Character>();
@@ -126,7 +126,7 @@ public class GameManager : MonoBehaviour
         _leftThisTurn = _charactersPerPlayer;
         _playerOneLeft = _charactersPerPlayer;
         _playerTwoLeft = _charactersPerPlayer;
-        _RIP = new Vector2Int(-1, -1);
+        //_RIP = new Vector2Int(-1, -1);
     }
 
     public List<Vector2Int> GetAllEnemiesOrAllies()
@@ -158,9 +158,9 @@ public class GameManager : MonoBehaviour
                     alive.Value.UpdateStatus();
                     if (alive.Value.isDead)
                     {
-                        if (!GameIsOver(alive.Value.IsPlayerOne))
+                        if (!CheckGameIsOver(alive.Value.IsPlayerOne))
                         {
-                            _RIP = alive.Key;
+                            _characterDictionary.Remove(alive.Key);
                             Destroy(alive.Value.gameObject);
                         }
                         else
@@ -168,16 +168,6 @@ public class GameManager : MonoBehaviour
                             return;
                         }
                     }
-                    else
-                    {
-                        alive.Value.UpdateHUD();
-                    }
-                }
-
-                if (_RIP != new Vector2Int(-1, -1))
-                {
-                    _characterDictionary.Remove(_RIP);
-                    _RIP = new Vector2Int(-1, -1);
                 }
 
                 GUI.stateChanged = false;
@@ -185,21 +175,20 @@ public class GameManager : MonoBehaviour
             }
             if (_leftThisTurn <= 0)
             {
-                _leftThisTurn = IsPlayerOneTurn ? _playerOneLeft : _playerTwoLeft;
+                _leftThisTurn = !IsPlayerOneTurn ? _playerOneLeft : _playerTwoLeft;
                 IsPlayerOneTurn = !IsPlayerOneTurn;
                 foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
                 {
                     if (alive.Value.IsPlayerOne == IsPlayerOneTurn || !(alive.Value.IsPlayerOne) == !IsPlayerOneTurn)
-                    {
-                        Cursor.cursorInstance.MoveCursor(alive.Key.x, alive.Key.x);
-                        break;
-                    }
+                        Cursor.cursorInstance.MoveCursor(alive.Key.x, alive.Key.y);
+
+                    alive.Value.ResetState();
                 }
             }
         }
     } 
 
-    private bool GameIsOver(bool player)
+    private bool CheckGameIsOver(bool player)
     {
         if (player)
             _playerOneLeft--;

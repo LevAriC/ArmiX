@@ -61,20 +61,23 @@ public class Character : MonoBehaviour
         ++_characterID;
         getCharacterID = _characterID;
         remainingHealth = _health;
+        remainingHealth = _health;
 
-        UpdateHUD();
-    }
-
-    public void UpdateHUD()
-    {
-        _healthSlider.value = remainingHealth;
+        UpdateStatus();
     }
 
     public void UpdateStatus()
     {
+        _healthSlider.value = remainingHealth;
         if (remainingHealth <= 0)
         {
             isDead = true;
         }
+    }
+    public void ResetState()
+    {
+        movedThisTurn = false;
+        attackedThisTurn = false;
+        overwatchedThisTurn = false;
     }
 }
