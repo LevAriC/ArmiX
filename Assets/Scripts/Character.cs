@@ -25,6 +25,7 @@ public class Character : MonoBehaviour
     public int getStrength { get { return _strength; } }
     public int getMovement { get { return _movement; } }
     public int getRange { get { return _range; } }
+    public float getAccuracy { get { return _accuracy; } }
     #endregion
 
     #region State

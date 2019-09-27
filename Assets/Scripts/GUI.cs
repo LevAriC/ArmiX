@@ -11,6 +11,7 @@ public class GUI : MonoBehaviour
 
     [SerializeField] Combat _combatLogic;
     [SerializeField] Text _turnText;
+    [SerializeField] Text _popUpText;
     [SerializeField] Canvas _combatMenu;
     [SerializeField] EventSystem _eventSystem;
 
@@ -35,12 +36,27 @@ public class GUI : MonoBehaviour
     public event Action OverwatchEvent;
 
     public bool moveRoutine { get; private set; }
-    public bool attackRoutine { get; private set; }
+    public bool attackRoutine { get; set; }
     public bool overwatchRoutine { get; private set; }
     #endregion
 
 
     public static GUI menuInstance { get; private set; }
+
+    public void RunPopup(string text)
+    {
+        StartCoroutine(FadePopUp(text));
+    }
+
+    private IEnumerator FadePopUp(string text)
+    {
+        float duration = 0.5f;
+        _popUpText.canvasRenderer.SetAlpha(0.00f);
+        _popUpText.GetComponent<Text>().text = text;
+        _popUpText.CrossFadeAlpha(1.0f, duration, false);
+        yield return new WaitForSeconds(duration * 2);
+        _popUpText.CrossFadeAlpha(0.0f, duration, false);
+    }
 
     private void OnMoveClicked()
     {
@@ -195,10 +211,16 @@ public class GUI : MonoBehaviour
                 int distance = (int)Math.Floor(Math.Sqrt(attackerPos.x + defenderPos.x) + Math.Sqrt(attackerPos.y + defenderPos.y));
 
                 GameManager.Instance._characterEnemyClicked = character;
-                _combatLogic.AttackEnemy(GameManager.Instance._characterClicked, GameManager.Instance._characterEnemyClicked, distance);
-                GameManager.Instance._characterClicked.myAnimator.SetTrigger("isTargetAcquired");
-                GameManager.Instance._characterEnemyClicked.myAnimator.SetTrigger("isHit");
-                GameManager.Instance._characterClicked.attackedThisTurn = true;
+                var didHit = _combatLogic.AttackEnemy(GameManager.Instance._characterClicked, GameManager.Instance._characterEnemyClicked, distance);
+                if(didHit)
+                {
+                    GameManager.Instance._characterClicked.myAnimator.SetTrigger("isTargetAcquired");
+                    GameManager.Instance._characterEnemyClicked.myAnimator.SetTrigger("isHit");
+                    GameManager.Instance._characterClicked.attackedThisTurn = true;
+                }
+                else
+                    RunPopup("Target Missed!!");
+
                 Cursor.cursorInstance.MoveCursor(attackerPos.x, attackerPos.y);
             }
             else

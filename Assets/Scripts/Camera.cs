@@ -47,7 +47,12 @@ public class Camera : MonoBehaviour
                 _zz = -_zz;
             }
 
-            if(!GUI.menuInstance.attackRoutine)
+            if(GUI.menuInstance.attackRoutine)
+            {
+                transform.LookAt(target.position);
+            }
+
+            else
             {
                 transform.position = target.position + new Vector3(_x, _y, _z);
                 //transform.position = Vector3.Lerp(prevPos, target.position + new Vector3(_x, _y, _z), _lerp);

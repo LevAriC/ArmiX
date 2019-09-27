@@ -3,7 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using MiniJSON;
 using UnityEngine.UI;
+using AssemblyCSharp;
+using com.shephertz.app42.gaming.multiplayer.client;
+using com.shephertz.app42.gaming.multiplayer.client.events;
 
 public class StartMenu : MonoBehaviour
 {
@@ -11,10 +15,195 @@ public class StartMenu : MonoBehaviour
     [SerializeField] GameObject[] _screens;
     [SerializeField] GameObject[] _firstButton;
     [SerializeField] GameObject _multiplayerPanel;
+    [SerializeField] GameObject _statusText;
 
     private enum MenuScreen { MainMenu, Singleplayer, Multiplayer, Options, Loading };
     private MenuScreen _currentScreen;
 
+    #region Multiplayer
+    private string apiKey = "f776fb1419d8e7b2315c7a0755351306ebc4eedd2c9d7b0994ebb3812427d049";
+    private string secretKey = "77e4c68e882c992617656369508b5c95cefe9ad18eb22fb40e9edae7a3b0ebf5";
+    private string curRoomId;
+    private string userId = "";
+    private int roomIdx = 0;
+    public Listener listen;
+    #endregion
+
+    private Dictionary<string, GameObject> unityObjects;
+    private Dictionary<string, object> matchRoomData;
+    private List<string> roomIds;
+
+    private void OnEnable()
+    {
+        Listener.OnConnect += OnConnect;
+        Listener.OnRoomsInRange += OnRoomsInRange;
+        Listener.OnCreateRoom += OnCreateRoom;
+        Listener.OnGetLiveRoomInfo += OnGetLiveRoomInfo;
+        Listener.OnJoinRoom += OnJoinRoom;
+        Listener.OnUserJoinRoom += OnUserJoinRoom;
+        Listener.OnGameStarted += OnGameStarted;
+    }
+
+    private void OnDisable()
+    {
+        Listener.OnConnect -= OnConnect;
+        Listener.OnRoomsInRange -= OnRoomsInRange;
+        Listener.OnCreateRoom -= OnCreateRoom;
+        Listener.OnGetLiveRoomInfo -= OnGetLiveRoomInfo;
+        Listener.OnJoinRoom -= OnJoinRoom;
+        Listener.OnUserJoinRoom -= OnUserJoinRoom;
+        Listener.OnGameStarted -= OnGameStarted;
+    }
+
+    protected void Start()
+    {
+        MenuInit();
+    }
+
+    private void MenuInit()
+    {
+        //unityObjects = new Dictionary<string, GameObject>();
+        //GameObject[] _objects = GameObject.FindGameObjectsWithTag("UnityObject");
+        //foreach (GameObject o in _objects)
+        //    unityObjects.Add(o.name, o);
+
+        //unityObjects["Btn_Play"].GetComponent<Button>().interactable = false;
+        //unityObjects["Game"].SetActive(false);
+
+        if (listen == null)
+            listen = new Listener();
+
+        WarpClient.initialize(apiKey, secretKey);
+        WarpClient.GetInstance().AddConnectionRequestListener(listen);
+        WarpClient.GetInstance().AddChatRequestListener(listen);
+        WarpClient.GetInstance().AddUpdateRequestListener(listen);
+        WarpClient.GetInstance().AddLobbyRequestListener(listen);
+        WarpClient.GetInstance().AddNotificationListener(listen);
+        WarpClient.GetInstance().AddRoomRequestListener(listen);
+        WarpClient.GetInstance().AddZoneRequestListener(listen);
+        WarpClient.GetInstance().AddTurnBasedRoomRequestListener(listen);
+
+        matchRoomData = new Dictionary<string, object>();
+        matchRoomData.Add("Password", "Shenkar");
+
+        userId = System.DateTime.Now.Ticks.ToString();
+        Debug.Log(userId);
+        WarpClient.GetInstance().Connect(userId);
+        UpdateStatus("Connecting...");
+    }
+
+    private void UpdateStatus(string _NewStatus)
+    {
+        _statusText.GetComponent<Text>().text = _NewStatus;
+    }
+
+    #region Events
+
+    private void OnConnect(bool _IsSuccess)
+    {
+        Debug.Log(_IsSuccess);
+        if (_IsSuccess)
+        {
+            UpdateStatus("Connected!");
+            unityObjects["Btn_Play"].GetComponent<Button>().interactable = true;
+        }
+        else UpdateStatus("Connection Error");
+    }
+
+    private void OnRoomsInRange(bool _IsSuccess, MatchedRoomsEvent eventObj)
+    {
+        Debug.Log(_IsSuccess + " " + "" + eventObj.getRoomsData().Length);
+        if (_IsSuccess)
+        {
+            UpdateStatus("Parsing Rooms");
+            roomIds = new List<string>();
+            foreach (var roomData in eventObj.getRoomsData())
+            {
+                Debug.Log("RoomId " + roomData.getId());
+                Debug.Log("Room Owner " + roomData.getRoomOwner());
+                roomIds.Add(roomData.getId());
+            }
+
+            roomIdx = 0;
+            DoRoomSearchLogic();
+        }
+        else UpdateStatus("Error Fetching Rooms in Range");
+    }
+
+    private void DoRoomSearchLogic()
+    {
+        if (roomIdx < roomIds.Count)
+        {
+            UpdateStatus("Get Room Details (" + roomIds[roomIdx] + ")");
+            WarpClient.GetInstance().GetLiveRoomInfo(roomIds[roomIdx]);
+        }
+        else
+        {
+            UpdateStatus("Create Room...");
+            WarpClient.GetInstance().CreateTurnRoom("Test", userId, 2, matchRoomData, 60);
+        }
+    }
+
+    private void OnCreateRoom(bool _IsSuccess, string _RoomId)
+    {
+        Debug.Log("OnCreateRoom " + _IsSuccess + " " + _RoomId);
+        if (_IsSuccess)
+        {
+            UpdateStatus("Room Created, waiting for opponent...");
+            curRoomId = _RoomId;
+            WarpClient.GetInstance().JoinRoom(curRoomId);
+            WarpClient.GetInstance().SubscribeRoom(curRoomId);
+        }
+        else UpdateStatus("Failed to create Room");
+    }
+
+    private void OnGetLiveRoomInfo(LiveRoomInfoEvent eventObj)
+    {
+        Dictionary<string, object> _prams = eventObj.getProperties();
+        if (_prams != null && _prams.ContainsKey("Password"))
+        {
+            string _pass = _prams["Password"].ToString();
+            if (_pass == matchRoomData["Password"].ToString())
+            {
+                curRoomId = eventObj.getData().getId();
+                UpdateStatus("Joining Room " + curRoomId);
+                WarpClient.GetInstance().JoinRoom(curRoomId);
+                WarpClient.GetInstance().SubscribeRoom(curRoomId);
+            }
+            else
+            {
+                roomIdx++;
+                DoRoomSearchLogic();
+            }
+        }
+    }
+
+    private void OnJoinRoom(bool _IsSuccess, string _RoomId)
+    {
+        if (_IsSuccess)
+            UpdateStatus("Succefully Joined Room " + _RoomId);
+        else UpdateStatus("Failed to Joined Room " + _RoomId);
+    }
+
+
+    private void OnUserJoinRoom(RoomData eventObj, string _UserId)
+    {
+        if (userId != _UserId)
+        {
+            UpdateStatus(_UserId + " Have joined the room");
+            WarpClient.GetInstance().startGame();
+        }
+    }
+    private void OnGameStarted(string _Sender, string _RoomId, string _NextTurn)
+    {
+        UpdateStatus("Started Game, " + _NextTurn + " Turn to Play");
+        unityObjects["Menu"].SetActive(false);
+        unityObjects["Game"].SetActive(true);
+    }
+
+    #endregion
+
+    #region ArmiX
     protected void Awake()
     {
         Init();
@@ -80,5 +269,6 @@ public class StartMenu : MonoBehaviour
 
         ChangeScreenLogic(MenuScreen.Loading);
     }
+    #endregion
 }
-    //public string setTurnText { set { _turnText.GetComponent<Text>().text = value; } }
+//public string setTurnText { set { _turnText.GetComponent<Text>().text = value; } }

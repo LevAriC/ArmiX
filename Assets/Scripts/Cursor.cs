@@ -119,7 +119,14 @@ public class Cursor : MonoBehaviour
             {
                 if (_restrictedList == null)
                 {
-                    _restrictedList = new List<Vector2Int>(GameManager.Instance.GetAllEnemiesOrAllies());
+                    _restrictedList = new List<Vector2Int>(GameManager.Instance.GetTargetsInRange());
+                    if(_restrictedList.Count == 0)
+                    {
+                        _mainMenu.attackRoutine = false;
+                        GUI.menuInstance.RunPopup("No Enemies In Range");
+                        return;
+                    }
+
                     _restrictedListIndex = 0;
                 }
 

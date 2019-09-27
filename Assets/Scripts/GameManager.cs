@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -44,8 +45,11 @@ public class GameManager : MonoBehaviour
     protected void Awake()
     {
         Instance = this;
-        PlayerOneColor = Character.CharacterColors.None;
-        PlayerTwoColor = Character.CharacterColors.None;
+        //PlayerOneColor = Character.CharacterColors.None;
+        //PlayerTwoColor = Character.CharacterColors.None;
+        PlayerOneColor = Character.CharacterColors.White;
+        PlayerTwoColor = Character.CharacterColors.Black;
+
         _restartButton.gameObject.SetActive(false);
         GameInit();
         _characterDictionary = new Dictionary<Vector2Int, Character>();
@@ -108,7 +112,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
         {
             if (alive.Value.IsPlayerOne)
                 alive.Value.SetColor(PlayerOneColor);
@@ -121,7 +125,8 @@ public class GameManager : MonoBehaviour
 
     private void GameInit()
     {
-        IsPlayerOneTurn = Random.value > 0.5f ? true : false;
+        IsPlayerOneTurn = true;
+        //IsPlayerOneTurn = Random.value > 0.5f ? true : false;
         GameOver = false;
         _leftThisTurn = _charactersPerPlayer;
         _playerOneLeft = _charactersPerPlayer;
@@ -129,19 +134,30 @@ public class GameManager : MonoBehaviour
         //_RIP = new Vector2Int(-1, -1);
     }
 
-    public List<Vector2Int> GetAllEnemiesOrAllies()
+    public List<Vector2Int> GetTargetsInRange()
     {
         List<Vector2Int> tmpList = new List<Vector2Int>();
-        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
         {
-            if (alive.Value.myColor != PlayerTwoColor && !IsPlayerOneTurn)
+            if (alive.Value.myColor != PlayerTwoColor && !IsPlayerOneTurn || alive.Value.myColor == PlayerTwoColor && IsPlayerOneTurn)
             {
+                if(_whereClicked.x <= alive.Key.x && alive.Key.x <= _whereClicked.x + _characterClicked.getRange ||
+                   _whereClicked.x >= alive.Key.x && alive.Key.x >= _whereClicked.x + _characterClicked.getRange ||
+                   _whereClicked.y <= alive.Key.y && alive.Key.y <= _whereClicked.y + _characterClicked.getRange ||
+                   _whereClicked.y >= alive.Key.y && alive.Key.y >= _whereClicked.y + _characterClicked.getRange)
                 tmpList.Add(alive.Key);
             }
-            if (alive.Value.myColor == PlayerTwoColor && IsPlayerOneTurn)
-            {
-                tmpList.Add(alive.Key);
-            }
+            //if (_posY < curMaxY || _posY > curMinY)
+            //    _posY += GameManager.Instance.IsPlayerOneTurn ? 1 : -1;
+            //if (Input.GetKeyDown(KeyCode.DownArrow))
+            //    if (_posY > curMinY || _posY < curMaxY)
+            //        _posY += GameManager.Instance.IsPlayerOneTurn ? -1 : 1;
+            //if (Input.GetKeyDown(KeyCode.LeftArrow))
+            //    if (_posX > curMinX || _posX < curMaxX)
+            //        _posX += GameManager.Instance.IsPlayerOneTurn ? -1 : 1;
+            //if (Input.GetKeyDown(KeyCode.RightArrow))
+            //    if (_posX < curMaxX || _posX > curMinX)
+            //        _posX += GameManager.Instance.IsPlayerOneTurn ? 1 : -1;
         }
 
         return tmpList;
@@ -153,7 +169,7 @@ public class GameManager : MonoBehaviour
         {
             if (_leftThisTurn > 0)
             {
-                foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+                foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
                 {
                     alive.Value.UpdateStatus();
                     if (alive.Value.isDead)
@@ -178,7 +194,7 @@ public class GameManager : MonoBehaviour
             {
                 _leftThisTurn = !IsPlayerOneTurn ? _playerOneLeft : _playerTwoLeft;
                 IsPlayerOneTurn = !IsPlayerOneTurn;
-                foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+                foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
                 {
                     if (alive.Value.IsPlayerOne == IsPlayerOneTurn || !(alive.Value.IsPlayerOne) == !IsPlayerOneTurn)
                         Cursor.cursorInstance.MoveCursor(alive.Key.x, alive.Key.y);
@@ -207,7 +223,7 @@ public class GameManager : MonoBehaviour
         GameInit();
         if(_characterDictionary != null)
         {
-            foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+            foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
                 Destroy(alive.Value.gameObject);
         }
 
@@ -227,7 +243,7 @@ public class GameManager : MonoBehaviour
     {
         _gameBoard.SetCharacterOnBoard(_whereClicked.x, _whereClicked.y, _characterClicked);
 
-        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
         {
             if (alive.Value.getCharacterID == _characterClicked.getCharacterID)
             {
