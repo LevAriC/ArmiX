@@ -255,14 +255,14 @@ public class StartMenu : MonoBehaviour
             }
             else
             {
-                GameManager.Instance.PlayerOneColor = Character.CharacterColors.White;
+                GameManager.Instance.PlayerOneColor = (Character.CharacterColors)color;
                 matchRoomData.Add("PlayerOneColor", GameManager.Instance.PlayerOneColor.ToString());
             }
         }
-        else
-        {
-            GameManager.Instance.PlayerTwoColor = Character.CharacterColors.Black;
-        }
+        //else
+        //{
+        //    GameManager.Instance.PlayerTwoColor = Character.CharacterColors.Black;
+        //}
 
         ChangeScreenLogic(MenuScreen.Loading);
     }
