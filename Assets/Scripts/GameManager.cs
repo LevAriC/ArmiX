@@ -63,8 +63,10 @@ public class GameManager : MonoBehaviour
     private void OnGameStarted(string _Sender, string _RoomId, string _NextTurn)
     {
         GameStarted = true;
-
-        WhosTurn = _
+        if(_NextTurn == UserId)
+            WhosTurn = PlayerOneColor;
+        else
+            WhosTurn = PlayerTwoColor;
     }
 
     private void SendingJSONToServer()

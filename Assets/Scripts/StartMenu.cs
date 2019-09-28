@@ -246,13 +246,13 @@ public class StartMenu : MonoBehaviour
             }
             else
             {
-                GameManager.Instance.PlayerOneColor = (Character.CharacterColors)color;
+                GameManager.Instance.PlayerOneColor = Character.CharacterColors.White;
                 matchRoomData.Add("PlayerOneColor", GameManager.Instance.PlayerOneColor.ToString());
             }
         }
         else
         {
-            GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)color;
+            GameManager.Instance.PlayerTwoColor = Character.CharacterColors.Black;
         }
 
         ChangeScreenLogic(MenuScreen.Loading);
