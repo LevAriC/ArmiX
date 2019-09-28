@@ -25,10 +25,10 @@ public class Cursor : MonoBehaviour
 
     protected void Start()
     {
-        _maxX = GameManager.Instance.GetBoard.GetWidth - 1;
+        _maxX = GameManager.Instance.GetBoard.GetWidth - 1; 
         _maxY = GameManager.Instance.GetBoard.GetHeight - 1;
 
-        if(GameManager.Instance.IsPlayerOneTurn) 
+        if(GameManager.Instance.IsMyTurn) 
         {
             _posX = 0;
             _posY = 0;
@@ -44,8 +44,9 @@ public class Cursor : MonoBehaviour
 
     protected void Update()
     {
-        if(GameManager.Instance.GameStarted)
-            CursorMovement();
+        if(GameManager.Instance.GameStarted || GameManager.Instance.UserId == null && !GameManager.Instance.GameStarted)
+            if(GameManager.Instance.IsMyTurn)
+                CursorMovement();
     }
 
     public void MoveCursor(int x, int y)
@@ -73,16 +74,16 @@ public class Cursor : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
             if (_posY < curMaxY || _posY > curMinY)
-                _posY += GameManager.Instance.IsPlayerOneTurn ? 1 : -1;
+                _posY += GameManager.Instance.IsMyTurn ? 1 : -1;
         if (Input.GetKeyDown(KeyCode.DownArrow))
             if(_posY > curMinY || _posY < curMaxY)
-                _posY += GameManager.Instance.IsPlayerOneTurn ? -1 : 1;
+                _posY += GameManager.Instance.IsMyTurn ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.LeftArrow))
             if(_posX > curMinX || _posX < curMaxX)
-                _posX += GameManager.Instance.IsPlayerOneTurn ? -1 : 1;
+                _posX += GameManager.Instance.IsMyTurn ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.RightArrow))
             if(_posX < curMaxX || _posX > curMinX)
-                _posX += GameManager.Instance.IsPlayerOneTurn ? 1 : -1;
+                _posX += GameManager.Instance.IsMyTurn ? 1 : -1;
 
         if (_posX < curMinX) _posX = curMinX;
         if (_posX > curMaxX) _posX = curMaxX;

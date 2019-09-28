@@ -24,14 +24,8 @@ public class StartMenu : MonoBehaviour
     private string apiKey = "f776fb1419d8e7b2315c7a0755351306ebc4eedd2c9d7b0994ebb3812427d049";
     private string secretKey = "77e4c68e882c992617656369508b5c95cefe9ad18eb22fb40e9edae7a3b0ebf5";
     private string curRoomId;
-    private string userId = "";
     private int roomIdx = 0;
     public Listener listen;
-    #endregion
-
-    private Dictionary<string, GameObject> unityObjects;
-    private Dictionary<string, object> matchRoomData;
-    private List<string> roomIds;
 
     private void OnEnable()
     {
@@ -43,7 +37,6 @@ public class StartMenu : MonoBehaviour
         Listener.OnUserJoinRoom += OnUserJoinRoom;
         Listener.OnGameStarted += OnGameStarted;
     }
-
     private void OnDisable()
     {
         Listener.OnConnect -= OnConnect;
@@ -54,6 +47,11 @@ public class StartMenu : MonoBehaviour
         Listener.OnUserJoinRoom -= OnUserJoinRoom;
         Listener.OnGameStarted -= OnGameStarted;
     }
+    #endregion
+
+    private Dictionary<string, GameObject> unityObjects;
+    private Dictionary<string, object> matchRoomData;
+    private List<string> roomIds;
 
     protected void Start()
     {
@@ -62,13 +60,9 @@ public class StartMenu : MonoBehaviour
 
     private void MenuInit()
     {
-        //unityObjects = new Dictionary<string, GameObject>();
-        //GameObject[] _objects = GameObject.FindGameObjectsWithTag("UnityObject");
-        //foreach (GameObject o in _objects)
-        //    unityObjects.Add(o.name, o);
-
-        //unityObjects["Btn_Play"].GetComponent<Button>().interactable = false;
-        //unityObjects["Game"].SetActive(false);
+        var buttons = _multiplayerPanel.GetComponentsInChildren<Button>();
+        foreach (var toDisable in buttons)
+                toDisable.interactable = false;
 
         if (listen == null)
             listen = new Listener();
@@ -85,31 +79,24 @@ public class StartMenu : MonoBehaviour
 
         matchRoomData = new Dictionary<string, object>();
         matchRoomData.Add("Password", "Shenkar");
-
-        userId = System.DateTime.Now.Ticks.ToString();
-        Debug.Log(userId);
-        WarpClient.GetInstance().Connect(userId);
-        UpdateStatus("Connecting...");
-    }
-
-    private void UpdateStatus(string _NewStatus)
-    {
-        _statusText.GetComponent<Text>().text = _NewStatus;
     }
 
     #region Events
-
     private void OnConnect(bool _IsSuccess)
     {
         Debug.Log(_IsSuccess);
         if (_IsSuccess)
         {
             UpdateStatus("Connected!");
-            unityObjects["Btn_Play"].GetComponent<Button>().interactable = true;
+            var buttons = _multiplayerPanel.GetComponentsInChildren<Button>();
+            foreach (var toDisable in buttons)
+            {
+                if (toDisable.name != GameManager.Instance.PlayerOneColor.ToString())
+                    toDisable.interactable = true;
+            }
         }
         else UpdateStatus("Connection Error");
     }
-
     private void OnRoomsInRange(bool _IsSuccess, MatchedRoomsEvent eventObj)
     {
         Debug.Log(_IsSuccess + " " + "" + eventObj.getRoomsData().Length);
@@ -129,7 +116,6 @@ public class StartMenu : MonoBehaviour
         }
         else UpdateStatus("Error Fetching Rooms in Range");
     }
-
     private void DoRoomSearchLogic()
     {
         if (roomIdx < roomIds.Count)
@@ -140,10 +126,9 @@ public class StartMenu : MonoBehaviour
         else
         {
             UpdateStatus("Create Room...");
-            WarpClient.GetInstance().CreateTurnRoom("Test", userId, 2, matchRoomData, 60);
+            WarpClient.GetInstance().CreateTurnRoom("Test", GameManager.Instance.UserId, 2, matchRoomData, 60);
         }
     }
-
     private void OnCreateRoom(bool _IsSuccess, string _RoomId)
     {
         Debug.Log("OnCreateRoom " + _IsSuccess + " " + _RoomId);
@@ -156,7 +141,6 @@ public class StartMenu : MonoBehaviour
         }
         else UpdateStatus("Failed to create Room");
     }
-
     private void OnGetLiveRoomInfo(LiveRoomInfoEvent eventObj)
     {
         Dictionary<string, object> _prams = eventObj.getProperties();
@@ -177,18 +161,15 @@ public class StartMenu : MonoBehaviour
             }
         }
     }
-
     private void OnJoinRoom(bool _IsSuccess, string _RoomId)
     {
         if (_IsSuccess)
             UpdateStatus("Succefully Joined Room " + _RoomId);
         else UpdateStatus("Failed to Joined Room " + _RoomId);
     }
-
-
     private void OnUserJoinRoom(RoomData eventObj, string _UserId)
     {
-        if (userId != _UserId)
+        if (GameManager.Instance.UserId != _UserId)
         {
             UpdateStatus(_UserId + " Have joined the room");
             WarpClient.GetInstance().startGame();
@@ -196,11 +177,8 @@ public class StartMenu : MonoBehaviour
     }
     private void OnGameStarted(string _Sender, string _RoomId, string _NextTurn)
     {
-        UpdateStatus("Started Game, " + _NextTurn + " Turn to Play");
-        unityObjects["Menu"].SetActive(false);
-        unityObjects["Game"].SetActive(true);
+        gameObject.SetActive(false);
     }
-
     #endregion
 
     #region ArmiX
@@ -227,12 +205,24 @@ public class StartMenu : MonoBehaviour
     {
         _screens[(int)_currentScreen].SetActive(false);
 
-        if (newScreen == MenuScreen.Loading)
+        if (newScreen == MenuScreen.Multiplayer && GameManager.Instance.UserId == null)
+        {
+            GameManager.Instance.UserId = System.DateTime.Now.Ticks.ToString();
+            Debug.Log(GameManager.Instance.UserId);
+            WarpClient.GetInstance().Connect(GameManager.Instance.UserId);
+            UpdateStatus("Connecting...");
+        }
+
+        if (newScreen == MenuScreen.Loading && _currentScreen == MenuScreen.Multiplayer)
+        {
+            UpdateStatus("Searching for room...");
+            WarpClient.GetInstance().GetRoomsInRange(1, 2);
+        }
+        if (newScreen == MenuScreen.Loading && _currentScreen == MenuScreen.Singleplayer)
         {
             gameObject.SetActive(false);
             return;
         }
-
         _screens[(int)newScreen].SetActive(true);
         _currentScreen = newScreen;
         _eventSystem.SetSelectedGameObject(_firstButton[(int)newScreen].gameObject);
@@ -251,12 +241,6 @@ public class StartMenu : MonoBehaviour
             }
             else
             {
-                var buttons= _multiplayerPanel.GetComponentsInChildren<Button>();
-                foreach(var toDisable in buttons)
-                {
-                    if (toDisable.name == GameManager.Instance.PlayerOneColor.ToString())
-                        toDisable.interactable = false;
-                }
 
                 GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)color;
             }
@@ -268,6 +252,10 @@ public class StartMenu : MonoBehaviour
         }
 
         ChangeScreenLogic(MenuScreen.Loading);
+    }
+    private void UpdateStatus(string _NewStatus)
+    {
+        _statusText.GetComponent<Text>().text = _NewStatus;
     }
     #endregion
 }

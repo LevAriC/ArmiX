@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿using AssemblyCSharp;
+using com.shephertz.app42.gaming.multiplayer.client;
+using com.shephertz.app42.gaming.multiplayer.client.events;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -21,11 +24,13 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Turns Management
-    public bool IsPlayerOneTurn { get; private set; }
+    public bool IsMyTurn { get; private set; }
     public Character.CharacterColors PlayerOneColor { get; set; }
     public Character.CharacterColors PlayerTwoColor { get; set; }
     public bool GameStarted { get; private set; }
     public bool GameOver { get; private set; }
+    public string UserId { get; set; }
+
     public bool InvalidCommand { get; set; }
     private bool _choosingColor;
     private int _leftThisTurn;
@@ -40,21 +45,77 @@ public class GameManager : MonoBehaviour
     public Character _characterEnemyClicked { get; set; }
     #endregion
 
+    #region Multiplayer
+    public Dictionary<string, object> _toSend;
+
+    private void SendingJSONToServer()
+    {
+        string _send = MiniJSON.Json.Serialize(_toSend);
+        WarpClient.GetInstance().sendMove(_send);
+    }
+    private void OnMoveCompleted(MoveEvent _Move)
+    {
+        if (_Move.getSender() != UserId)
+        {
+            Dictionary<string, object> _data = (Dictionary<string, object>)MiniJSON.Json.Deserialize(_Move.getMoveData());
+            if (_data != null && _data.ContainsKey("Index"))
+            {
+                int _index = int.Parse(_data["Index"].ToString());
+                SendingJSONToServer();
+            }
+        }
+
+        if (_Move.getNextTurn() == UserId)
+            IsMyTurn = true;
+        else IsMyTurn = false;
+    }
+
+    private void OnGameStopped(string _Sender, string _RoomId)
+    {
+        Debug.Log("Game Over");
+    }
+
+    private void OnEnable()
+    {
+        Listener.OnGameStarted += OnGameStarted;
+        Listener.OnMoveCompleted += OnMoveCompleted;
+        Listener.OnGameStopped += OnGameStopped;
+    }
+
+    private void OnDisable()
+    {
+        Listener.OnGameStarted -= OnGameStarted;
+        Listener.OnMoveCompleted -= OnMoveCompleted;
+        Listener.OnGameStopped -= OnGameStopped;
+    }
+    #endregion
     public static GameManager Instance { get; private set; }
 
     protected void Awake()
     {
         Instance = this;
-        //PlayerOneColor = Character.CharacterColors.None;
-        //PlayerTwoColor = Character.CharacterColors.None;
-        PlayerOneColor = Character.CharacterColors.White;
-        PlayerTwoColor = Character.CharacterColors.Black;
+        PlayerOneColor = Character.CharacterColors.None;
+        PlayerTwoColor = Character.CharacterColors.None;
 
         _restartButton.gameObject.SetActive(false);
+        UserId = null;
         GameInit();
         _characterDictionary = new Dictionary<Vector2Int, Character>();
-    }
+        _toSend = new Dictionary<string, object>();
 
+    }
+    private void OnGameStarted(string _Sender, string _RoomId, string _NextTurn)
+    {
+        GameStarted = true;
+        if (UserId == _NextTurn)
+        {
+            IsMyTurn = true;
+        }
+        else
+        {
+            IsMyTurn = false;
+        }
+    }
     protected void Start()
     {
         _gameBoard.SurfaceInit(transform);
@@ -64,15 +125,17 @@ public class GameManager : MonoBehaviour
         GUI.menuInstance.AttackPressedEvent += () => _characterClicked.myAnimator.SetTrigger("isAttacking");
         StartCoroutine(PlayersChoosingColor());
     }
-
     protected void Update()
     {
-        if(GameStarted)
+        if(GameStarted || UserId == null && !GameStarted)
         {
             if(!GameOver)
             {
-                GUI.menuInstance.MenuController();
-                TurnManagement();
+                if(IsMyTurn)
+                {
+                    GUI.menuInstance.MenuController();
+                    TurnManagement();
+                }
             }
             else if (GameOver)
             {
@@ -119,14 +182,12 @@ public class GameManager : MonoBehaviour
             else
                 alive.Value.SetColor(PlayerTwoColor);
         }
-
-        GameStarted = true;
     }
 
     private void GameInit()
     {
-        IsPlayerOneTurn = true;
-        //IsPlayerOneTurn = Random.value > 0.5f ? true : false;
+        IsMyTurn = true;
+        //IsMyTurn = Random.value > 0.5f ? true : false;
         GameOver = false;
         _leftThisTurn = _charactersPerPlayer;
         _playerOneLeft = _charactersPerPlayer;
@@ -139,7 +200,7 @@ public class GameManager : MonoBehaviour
         List<Vector2Int> tmpList = new List<Vector2Int>();
         foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
         {
-            if (alive.Value.myColor != PlayerTwoColor && !IsPlayerOneTurn || alive.Value.myColor == PlayerTwoColor && IsPlayerOneTurn)
+            if (alive.Value.myColor != PlayerTwoColor && !IsMyTurn || alive.Value.myColor == PlayerTwoColor && IsMyTurn)
             {
                 if(_whereClicked.x <= alive.Key.x && alive.Key.x <= _whereClicked.x + _characterClicked.getRange ||
                    _whereClicked.x >= alive.Key.x && alive.Key.x >= _whereClicked.x + _characterClicked.getRange ||
@@ -147,17 +208,6 @@ public class GameManager : MonoBehaviour
                    _whereClicked.y >= alive.Key.y && alive.Key.y >= _whereClicked.y + _characterClicked.getRange)
                 tmpList.Add(alive.Key);
             }
-            //if (_posY < curMaxY || _posY > curMinY)
-            //    _posY += GameManager.Instance.IsPlayerOneTurn ? 1 : -1;
-            //if (Input.GetKeyDown(KeyCode.DownArrow))
-            //    if (_posY > curMinY || _posY < curMaxY)
-            //        _posY += GameManager.Instance.IsPlayerOneTurn ? -1 : 1;
-            //if (Input.GetKeyDown(KeyCode.LeftArrow))
-            //    if (_posX > curMinX || _posX < curMaxX)
-            //        _posX += GameManager.Instance.IsPlayerOneTurn ? -1 : 1;
-            //if (Input.GetKeyDown(KeyCode.RightArrow))
-            //    if (_posX < curMaxX || _posX > curMinX)
-            //        _posX += GameManager.Instance.IsPlayerOneTurn ? 1 : -1;
         }
 
         return tmpList;
@@ -181,6 +231,7 @@ public class GameManager : MonoBehaviour
                         }
                         else
                         {
+                            WarpClient.GetInstance().stopGame();
                             return;
                         }
                     }
@@ -192,11 +243,11 @@ public class GameManager : MonoBehaviour
 
             if (_leftThisTurn <= 0)
             {
-                _leftThisTurn = !IsPlayerOneTurn ? _playerOneLeft : _playerTwoLeft;
-                IsPlayerOneTurn = !IsPlayerOneTurn;
+                _leftThisTurn = !IsMyTurn ? _playerOneLeft : _playerTwoLeft;
+                IsMyTurn = !IsMyTurn;
                 foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
                 {
-                    if (alive.Value.IsPlayerOne == IsPlayerOneTurn || !(alive.Value.IsPlayerOne) == !IsPlayerOneTurn)
+                    if (alive.Value.IsPlayerOne == IsMyTurn || !(alive.Value.IsPlayerOne) == !IsMyTurn)
                         Cursor.cursorInstance.MoveCursor(alive.Key.x, alive.Key.y);
 
                     alive.Value.ResetState();

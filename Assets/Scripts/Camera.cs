@@ -32,17 +32,17 @@ public class Camera : MonoBehaviour
 
     protected void Start()
     {
-        _prevTurn = GameManager.Instance.IsPlayerOneTurn;
-        _z = GameManager.Instance.IsPlayerOneTurn ? _z : -_z;
-        _zz = GameManager.Instance.IsPlayerOneTurn ? _zz : -_zz;
+        _prevTurn = GameManager.Instance.IsMyTurn;
+        _z = GameManager.Instance.IsMyTurn ? _z : -_z;
+        _zz = GameManager.Instance.IsMyTurn ? _zz : -_zz;
     }
     protected void Update()
     {
         if(GameManager.Instance.GameStarted)
         {
-            if (_prevTurn != GameManager.Instance.IsPlayerOneTurn)
+            if (_prevTurn != GameManager.Instance.IsMyTurn)
             {
-                _prevTurn = GameManager.Instance.IsPlayerOneTurn;
+                _prevTurn = GameManager.Instance.IsMyTurn;
                 _z = -_z;
                 _zz = -_zz;
             }

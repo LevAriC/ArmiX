@@ -66,6 +66,8 @@ public class GUI : MonoBehaviour
             ToggleMenu(false);
             StartCoroutine(WaitUntilChosen());
         }
+        else
+            RunPopup("Already Moved This Turn");
     }
     private void OnAttackClicked()
     {
@@ -77,6 +79,8 @@ public class GUI : MonoBehaviour
             StartCoroutine(WaitUntilChosen());
             AttackPressedEvent?.Invoke();
         }
+        else
+            RunPopup("Already Attacked This Turn");
     }
     private void OnOverwatchClicked()
     {
@@ -86,6 +90,8 @@ public class GUI : MonoBehaviour
             ToggleMenu(false);
             StartCoroutine(WaitUntilChosen());
         }
+        else
+            RunPopup("Already Overwatching");
     }
 
     private void RoutinesReset()
@@ -147,7 +153,7 @@ public class GUI : MonoBehaviour
 
     private bool IsMyTurn()
     {
-        if (GameManager.Instance._characterClicked && GameManager.Instance._characterClicked.IsPlayerOne == GameManager.Instance.IsPlayerOneTurn)
+        if (GameManager.Instance._characterClicked && GameManager.Instance._characterClicked.IsPlayerOne == GameManager.Instance.IsMyTurn)
             return true;
         else
             return false;
@@ -157,14 +163,14 @@ public class GUI : MonoBehaviour
     {
         if(!GameManager.Instance.GameOver)
         {
-            if (GameManager.Instance.IsPlayerOneTurn)
+            if (GameManager.Instance.IsMyTurn)
                 _turnText.GetComponent<Text>().text = GameManager.Instance.PlayerOneColor.ToString() + " Turn";
             else
                 _turnText.GetComponent<Text>().text = GameManager.Instance.PlayerTwoColor.ToString() + " Turn";
         }
         else
         {
-            if (GameManager.Instance.IsPlayerOneTurn)
+            if (GameManager.Instance.IsMyTurn)
                 _turnText.GetComponent<Text>().text = GameManager.Instance.PlayerOneColor.ToString() + " Won!!";
             else
                 _turnText.GetComponent<Text>().text = GameManager.Instance.PlayerTwoColor.ToString() + " Won!!";
