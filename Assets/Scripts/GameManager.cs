@@ -62,8 +62,9 @@ public class GameManager : MonoBehaviour
 
     private void OnGameStarted(string _Sender, string _RoomId, string _NextTurn)
     {
-        //GameStarted = true;
-        //WhosTurn = UserId == _NextTurn ? true : false;
+        GameStarted = true;
+
+        WhosTurn = _
     }
 
     private void SendingJSONToServer()
@@ -188,14 +189,12 @@ public class GameManager : MonoBehaviour
         while (_choosingColor)
         {
             if (PlayerOneColor != Character.CharacterColors.None)
-                //if(PlayerOneColor != PlayerOneColor)
                 if(IsSingleplayer)
                     _playersDictionary.Add("PlayerOne", PlayerOneColor);
                 else
                     _playersDictionary.Add(UserId, PlayerOneColor);
 
             if (PlayerTwoColor != Character.CharacterColors.None)
-                //if (PlayerTwoColor != PlayerTwoColor)
                 if (IsSingleplayer)
                     _playersDictionary.Add("PlayerTwo", PlayerTwoColor);
                 else
@@ -215,10 +214,11 @@ public class GameManager : MonoBehaviour
                 alive.Value.SetColor(PlayerTwoColor);
         }
 
-        WhosTurn = Random.value > 0.5f ? PlayerOneColor : PlayerTwoColor;
-
         if(IsSingleplayer)
+        {
+            WhosTurn = Random.value > 0.5f ? PlayerOneColor : PlayerTwoColor;
             SingleplayerUserID();
+        }
 
         GameStarted = true;
     }

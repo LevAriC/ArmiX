@@ -126,7 +126,7 @@ public class StartMenu : MonoBehaviour
         else
         {
             UpdateStatus("Create Room...");
-            WarpClient.GetInstance().CreateTurnRoom("Test", GameManager.Instance.UserId, 2, matchRoomData, 60);
+            WarpClient.GetInstance().CreateTurnRoom("ArmiX", GameManager.Instance.UserId, 2, matchRoomData, 120);
         }
     }
     private void OnCreateRoom(bool _IsSuccess, string _RoomId)
@@ -151,6 +151,9 @@ public class StartMenu : MonoBehaviour
             {
                 curRoomId = eventObj.getData().getId();
                 UpdateStatus("Joining Room " + curRoomId);
+                if (_prams.ContainsKey("PlayerOneColor"))
+                    GameManager.Instance.PlayerOneColor = (Character.CharacterColors)_prams["PlayerOneColor"];
+                Debug.Log("Player one color - " + GameManager.Instance.PlayerOneColor);
                 WarpClient.GetInstance().JoinRoom(curRoomId);
                 WarpClient.GetInstance().SubscribeRoom(curRoomId);
             }
@@ -233,20 +236,18 @@ public class StartMenu : MonoBehaviour
     {
         if (GameManager.Instance.PlayerOneColor == Character.CharacterColors.None)
         {
-            GameManager.Instance.PlayerOneColor = (Character.CharacterColors)color;
-
             if (_currentScreen == MenuScreen.Singleplayer)
             {
                 GameManager.Instance.IsSingleplayer = true;
-
+                GameManager.Instance.PlayerOneColor = (Character.CharacterColors)color;
                 GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)UnityEngine.Random.Range(0, 9);
                 while(GameManager.Instance.PlayerTwoColor == GameManager.Instance.PlayerOneColor)
                     GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)UnityEngine.Random.Range(0, 9);
-
             }
             else
             {
-                GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)color;
+                GameManager.Instance.PlayerOneColor = (Character.CharacterColors)color;
+                matchRoomData.Add("PlayerOneColor", GameManager.Instance.PlayerOneColor.ToString());
             }
         }
         else
