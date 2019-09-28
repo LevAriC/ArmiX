@@ -152,7 +152,8 @@ public class StartMenu : MonoBehaviour
                 curRoomId = eventObj.getData().getId();
                 UpdateStatus("Joining Room " + curRoomId);
                 if (_prams.ContainsKey("PlayerOneColor"))
-                    GameManager.Instance.PlayerOneColor = (Character.CharacterColors)_prams["PlayerOneColor"];
+                    GameManager.Instance.PlayerOneColor = (Character.CharacterColors)Enum.Parse(typeof(Character.CharacterColors), _prams["PlayerOneColor"].ToString());
+
                 Debug.Log("Player one color - " + GameManager.Instance.PlayerOneColor);
                 WarpClient.GetInstance().JoinRoom(curRoomId);
                 WarpClient.GetInstance().SubscribeRoom(curRoomId);
