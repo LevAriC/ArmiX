@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
     public string UserId { get; set; }
     public bool IsSingleplayer { get; set; }
 
-    private Dictionary<string, Character.CharacterColors> _playersDictionary;
+    public Dictionary<string, Character.CharacterColors> _playersDictionary;
     public bool InvalidCommand { get; set; }
     private bool _choosingColor;
     private int _leftThisTurn;
@@ -193,14 +193,14 @@ public class GameManager : MonoBehaviour
             if (PlayerOneColor != Character.CharacterColors.None)
                 if(IsSingleplayer)
                     _playersDictionary.Add("PlayerOne", PlayerOneColor);
-                else
-                    _playersDictionary.Add(UserId, PlayerOneColor);
+                //else
+                //    _playersDictionary.Add(UserId, PlayerOneColor);
 
             if (PlayerTwoColor != Character.CharacterColors.None)
                 if (IsSingleplayer)
                     _playersDictionary.Add("PlayerTwo", PlayerTwoColor);
-                else
-                    _playersDictionary.Add(UserId, PlayerTwoColor);
+                //else
+                //    _playersDictionary.Add(UserId, Character.CharacterColors.Black);
 
             if (PlayerOneColor != Character.CharacterColors.None && PlayerTwoColor != Character.CharacterColors.None)
                 _choosingColor = false;
