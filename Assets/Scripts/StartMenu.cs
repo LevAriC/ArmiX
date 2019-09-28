@@ -158,7 +158,7 @@ public class StartMenu : MonoBehaviour
                     GameManager.Instance.PlayerOneColor = (Character.CharacterColors)Enum.Parse(typeof(Character.CharacterColors), _prams["PlayerOneColor"].ToString());
                     GameManager.Instance._playersDictionary.Add(eventObj.getData().getRoomOwner(), GameManager.Instance.PlayerOneColor);
                     GameManager.Instance._playersDictionary.Add(GameManager.Instance.UserId, Character.CharacterColors.Black);
-
+                    GameManager.Instance.PlayerTwoColor = Character.CharacterColors.Black;
                 }
 
                 Debug.Log("Player one color - " + GameManager.Instance.PlayerOneColor);
@@ -183,6 +183,7 @@ public class StartMenu : MonoBehaviour
         if (GameManager.Instance.UserId != _UserId)
         {
             GameManager.Instance._playersDictionary.Add(_UserId, Character.CharacterColors.Black);
+            GameManager.Instance.PlayerTwoColor = Character.CharacterColors.Black;
             UpdateStatus(_UserId + " Have joined the room");
             WarpClient.GetInstance().startGame();
         }
