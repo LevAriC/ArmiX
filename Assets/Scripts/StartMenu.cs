@@ -150,11 +150,15 @@ public class StartMenu : MonoBehaviour
             if (_pass == matchRoomData["Password"].ToString())
             {
                 curRoomId = eventObj.getData().getId();
+                var wtf = eventObj.getCustomData();
+                Debug.Log("wtf - " + wtf);
                 UpdateStatus("Joining Room " + curRoomId);
                 if (_prams.ContainsKey("PlayerOneColor"))
                 {
                     GameManager.Instance.PlayerOneColor = (Character.CharacterColors)Enum.Parse(typeof(Character.CharacterColors), _prams["PlayerOneColor"].ToString());
-                    GameManager.Instance._playersDictionary.Add(GameManager.Instance.UserId, GameManager.Instance.PlayerOneColor);
+                    GameManager.Instance._playersDictionary.Add(eventObj.getData().getRoomOwner(), GameManager.Instance.PlayerOneColor);
+                    GameManager.Instance._playersDictionary.Add(GameManager.Instance.UserId, Character.CharacterColors.Black);
+
                 }
 
                 Debug.Log("Player one color - " + GameManager.Instance.PlayerOneColor);
