@@ -8,6 +8,7 @@ public class Camera : MonoBehaviour
     [SerializeField] float _lerp;
     private Vector3 _prevPos;
     private bool _prevTurn;
+    private Character.CharacterColors _prevColor;
 
     private float _x;
     private float _y;
@@ -32,17 +33,19 @@ public class Camera : MonoBehaviour
 
     protected void Start()
     {
-        _prevTurn = GameManager.Instance.IsMyTurn;
-        _z = GameManager.Instance.IsMyTurn ? _z : -_z;
-        _zz = GameManager.Instance.IsMyTurn ? _zz : -_zz;
+        _prevColor = GameManager.Instance.WhosTurn;
+        _prevTurn = GameManager.Instance.WhosTurn == GameManager.Instance.PlayerOneColor? false : true;
+        _z = _prevTurn ? _z : -_z;
+        _zz = _prevTurn ? _zz : -_zz;
     }
     protected void Update()
     {
-        if(GameManager.Instance.GameStarted)
+        if(GameManager.Instance.IsSingleplayer)
         {
-            if (_prevTurn != GameManager.Instance.IsMyTurn)
+            if (_prevColor != GameManager.Instance.WhosTurn)
             {
-                _prevTurn = GameManager.Instance.IsMyTurn;
+                _prevTurn = !_prevTurn;
+                _prevColor = GameManager.Instance.WhosTurn;
                 _z = -_z;
                 _zz = -_zz;
             }

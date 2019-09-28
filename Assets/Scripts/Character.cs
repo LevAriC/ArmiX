@@ -36,7 +36,7 @@ public class Character : MonoBehaviour
     #endregion
 
     #region ID
-    public CharacterColors myColor { get; private set; }
+    public CharacterColors MyColor { get; set; }
     public bool IsPlayerOne { get; set; }
     private static int _characterID = 0;
     public int getCharacterID { get; private set; }
@@ -53,7 +53,7 @@ public class Character : MonoBehaviour
         foreach (var mr in mrList)
             mr.material = _colorMaterials[(int)newColor];
 
-        myColor = newColor;
+        MyColor = newColor;
     }
 
     protected void Awake()

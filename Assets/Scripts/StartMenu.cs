@@ -47,23 +47,9 @@ public class StartMenu : MonoBehaviour
         Listener.OnUserJoinRoom -= OnUserJoinRoom;
         Listener.OnGameStarted -= OnGameStarted;
     }
-    #endregion
-
-    private Dictionary<string, GameObject> unityObjects;
-    private Dictionary<string, object> matchRoomData;
-    private List<string> roomIds;
-
-    protected void Start()
-    {
-        MenuInit();
-    }
 
     private void MenuInit()
     {
-        var buttons = _multiplayerPanel.GetComponentsInChildren<Button>();
-        foreach (var toDisable in buttons)
-                toDisable.interactable = false;
-
         if (listen == null)
             listen = new Listener();
 
@@ -79,6 +65,20 @@ public class StartMenu : MonoBehaviour
 
         matchRoomData = new Dictionary<string, object>();
         matchRoomData.Add("Password", "Shenkar");
+    }
+    #endregion
+
+    private Dictionary<string, GameObject> unityObjects;
+    private Dictionary<string, object> matchRoomData;
+    private List<string> roomIds;
+
+    protected void Start()
+    {
+        var buttons = _multiplayerPanel.GetComponentsInChildren<Button>();
+        foreach (var toDisable in buttons)
+            toDisable.interactable = false;
+
+        MenuInit();
     }
 
     #region Events
@@ -237,17 +237,20 @@ public class StartMenu : MonoBehaviour
 
             if (_currentScreen == MenuScreen.Singleplayer)
             {
+                GameManager.Instance.IsSingleplayer = true;
+
                 GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)UnityEngine.Random.Range(0, 9);
+                while(GameManager.Instance.PlayerTwoColor == GameManager.Instance.PlayerOneColor)
+                    GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)UnityEngine.Random.Range(0, 9);
+
             }
             else
             {
-
                 GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)color;
             }
         }
         else
         {
-
             GameManager.Instance.PlayerTwoColor = (Character.CharacterColors)color;
         }
 
@@ -259,4 +262,3 @@ public class StartMenu : MonoBehaviour
     }
     #endregion
 }
-//public string setTurnText { set { _turnText.GetComponent<Text>().text = value; } }

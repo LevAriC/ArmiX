@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Cursor : MonoBehaviour
 {
-    [SerializeField] GUI _mainMenu;
     //private Character.CharacterColors _currentColor;
     private List<Vector2Int> _restrictedList;
     private Tile _currentTile;
@@ -28,7 +27,7 @@ public class Cursor : MonoBehaviour
         _maxX = GameManager.Instance.GetBoard.GetWidth - 1; 
         _maxY = GameManager.Instance.GetBoard.GetHeight - 1;
 
-        if(GameManager.Instance.IsMyTurn) 
+        if(GameManager.Instance.WhosTurn == GameManager.Instance.PlayerOneColor) 
         {
             _posX = 0;
             _posY = 0;
@@ -44,9 +43,8 @@ public class Cursor : MonoBehaviour
 
     protected void Update()
     {
-        if(GameManager.Instance.GameStarted || GameManager.Instance.UserId == null && !GameManager.Instance.GameStarted)
-            if(GameManager.Instance.IsMyTurn)
-                CursorMovement();
+        if((GameManager.Instance.GameStarted && GameManager.Instance.IsMyTurn()) || GameManager.Instance.IsSingleplayer)
+            CursorMovement();
     }
 
     public void MoveCursor(int x, int y)
@@ -74,16 +72,16 @@ public class Cursor : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
             if (_posY < curMaxY || _posY > curMinY)
-                _posY += GameManager.Instance.IsMyTurn ? 1 : -1;
+                _posY += GameManager.Instance.IsMyTurn() ? 1 : -1;
         if (Input.GetKeyDown(KeyCode.DownArrow))
             if(_posY > curMinY || _posY < curMaxY)
-                _posY += GameManager.Instance.IsMyTurn ? -1 : 1;
+                _posY += GameManager.Instance.IsMyTurn() ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.LeftArrow))
             if(_posX > curMinX || _posX < curMaxX)
-                _posX += GameManager.Instance.IsMyTurn ? -1 : 1;
+                _posX += GameManager.Instance.IsMyTurn() ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.RightArrow))
             if(_posX < curMaxX || _posX > curMinX)
-                _posX += GameManager.Instance.IsMyTurn ? 1 : -1;
+                _posX += GameManager.Instance.IsMyTurn() ? 1 : -1;
 
         if (_posX < curMinX) _posX = curMinX;
         if (_posX > curMaxX) _posX = curMaxX;
@@ -93,7 +91,7 @@ public class Cursor : MonoBehaviour
 
     private void CursorMovement()
     {
-        if (!_mainMenu.menuOpen && !_mainMenu.playerIsChoosing)
+        if (!GUI.menuInstance.menuOpen && !GUI.menuInstance.playerIsChoosing)
         {
             DefaultMovement();
 
@@ -104,31 +102,34 @@ public class Cursor : MonoBehaviour
             }
         }
 
-        if (_mainMenu.playerIsChoosing)
+        if (GUI.menuInstance.playerIsChoosing)
         {
-            if (_mainMenu.moveRoutine || _mainMenu.overwatchRoutine)
+            if (GUI.menuInstance.moveRoutine || GUI.menuInstance.overwatchRoutine)
             {
                 var charToMove = GameManager.Instance._characterClicked;
                 var charPos = GameManager.Instance._whereClicked;
-                if (_mainMenu.moveRoutine)
+                if (GUI.menuInstance.moveRoutine)
                     DefaultMovement(charToMove.getMovement, charPos.x, charPos.y);
                 else
                     DefaultMovement(charToMove.getRange, charPos.x, charPos.y);
             }
 
-            if (_mainMenu.attackRoutine)
+            if (GUI.menuInstance.attackRoutine)
             {
                 if (_restrictedList == null)
                 {
                     _restrictedList = new List<Vector2Int>(GameManager.Instance.GetTargetsInRange());
                     if(_restrictedList.Count == 0)
                     {
-                        _mainMenu.attackRoutine = false;
+                        GameManager.Instance._characterClicked.attackedThisTurn = false;
+                        GUI.menuInstance.attackRoutine = false;
+                        GUI.menuInstance.playerIsChoosing = false;
                         GUI.menuInstance.RunPopup("No Enemies In Range");
-                        return;
+                        _restrictedList = null;
+                        _restrictedListIndex = -1;
                     }
-
-                    _restrictedListIndex = 0;
+                    else
+                        _restrictedListIndex = 0;
                 }
 
                 if (Input.GetKeyDown(KeyCode.LeftArrow))
@@ -146,8 +147,11 @@ public class Cursor : MonoBehaviour
                         _restrictedListIndex++;
                 }
 
-                _posX = _restrictedList[_restrictedListIndex].x;
-                _posY = _restrictedList[_restrictedListIndex].y;
+                if (_restrictedListIndex != -1)
+                {
+                    _posX = _restrictedList[_restrictedListIndex].x;
+                    _posY = _restrictedList[_restrictedListIndex].y;
+                }
             }
         }
 

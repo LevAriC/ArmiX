@@ -116,7 +116,7 @@ public class GUI : MonoBehaviour
 
     protected void FixedUpdate()
     {
-        if(GameManager.Instance.GameStarted)
+        if(GameManager.Instance.GameStarted || GameManager.Instance.UserId == null && !GameManager.Instance.GameStarted)
             TurnText();
     }
 
@@ -127,7 +127,8 @@ public class GUI : MonoBehaviour
             if (GameManager.Instance.IsCharacterHere())
             {
                 GameManager.Instance._characterClicked = GameManager.Instance._characterDictionary[GameManager.Instance._whereClicked];
-                if (IsMyTurn())
+                //if (GameManager.Instance.IsMyTurn() || GameManager.Instance.IsSingleplayer)
+                if (GameManager.Instance.IsMyTurn())
                 {
                     ToggleMenu(true);
                 }
@@ -151,30 +152,27 @@ public class GUI : MonoBehaviour
         }
     }
 
-    private bool IsMyTurn()
-    {
-        if (GameManager.Instance._characterClicked && GameManager.Instance._characterClicked.IsPlayerOne == GameManager.Instance.IsMyTurn)
-            return true;
-        else
-            return false;
-    }
+    //private bool IsMyTurn()
+    //{
+    //    if (GameManager.Instance._characterClicked && GameManager.Instance._characterClicked.IsPlayerOne == GameManager.Instance.WhosTurn)
+
+    //        if (GameManager.Instance.UserId == null && !GameManager.Instance.GameStarted)
+    //    {
+    //        if (GameManager.Instance._characterClicked && GameManager.Instance._characterClicked.IsPlayerOne == GameManager.Instance.WhosTurn)
+    //            return true;
+    //        else
+    //            return false;
+    //    }
+    //    else
+    //}
 
     private void TurnText()
     {
         if(!GameManager.Instance.GameOver)
-        {
-            if (GameManager.Instance.IsMyTurn)
-                _turnText.GetComponent<Text>().text = GameManager.Instance.PlayerOneColor.ToString() + " Turn";
-            else
-                _turnText.GetComponent<Text>().text = GameManager.Instance.PlayerTwoColor.ToString() + " Turn";
-        }
+            //_turnText.GetComponent<Text>().text = GameManager.Instance.WhosTurn.ToString() + " Turn";
+            _turnText.GetComponent<Text>().text = GameManager.Instance.WhosTurn.ToString() + " Turn";
         else
-        {
-            if (GameManager.Instance.IsMyTurn)
-                _turnText.GetComponent<Text>().text = GameManager.Instance.PlayerOneColor.ToString() + " Won!!";
-            else
-                _turnText.GetComponent<Text>().text = GameManager.Instance.PlayerTwoColor.ToString() + " Won!!";
-        }
+            _turnText.GetComponent<Text>().text = GameManager.Instance.WhosTurn.ToString() + " Won!!";
     }
 
     private void ToggleMenu(bool open)
