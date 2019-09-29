@@ -2978,7 +2978,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1041020029
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4209,6 +4209,8 @@ MonoBehaviour:
   - {fileID: 828320101}
   - {fileID: 937575931}
   - {fileID: 924146681}
+  - {fileID: 0}
+  - {fileID: 0}
   _multiplayerPanel: {fileID: 799067544}
   _statusText: {fileID: 1180219046}
 --- !u!1 &1798339944
