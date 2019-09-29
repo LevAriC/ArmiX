@@ -68,13 +68,13 @@ public class GameManager : MonoBehaviour
 
     private void SendingJSONToServer()
     {
-        Dictionary<string, object> _toSend = new Dictionary<string, object>();
-        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
-        {
-            _toSend.Add(alive.Key.ToString(), alive.Value);
-        }
+        //Dictionary<Vector2Int, object> _toSend = new Dictionary<string, object>();
+        //foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+        //{
+        //    _toSend.Add(alive.Key, alive.Value);
+        //}
 
-        string _send = MiniJSON.Json.Serialize(_toSend);
+        string _send = MiniJSON.Json.Serialize(_characterDictionary);
         WarpClient.GetInstance().sendMove(_send);
     }
 
@@ -82,15 +82,9 @@ public class GameManager : MonoBehaviour
     {
         if (_Move.getSender() != UserId)
         {
-            Dictionary<string, object> _data = (Dictionary<string, object>)MiniJSON.Json.Deserialize(_Move.getMoveData());
-            if (_data != null)
+            Dictionary<Vector2Int, Character> _characterDictionaryTmp = (Dictionary<Vector2Int, Character>)MiniJSON.Json.Deserialize(_Move.getMoveData());
+            if (_characterDictionaryTmp != null)
             {
-                var _characterDictionaryTmp = new Dictionary<Vector2Int, Character>();
-                foreach(KeyValuePair<string, object> alive in _data)
-                {
-                    _characterDictionaryTmp.Add((Vector2Int)Enum.Parse(typeof(Vector2Int), alive.Key), (Character)alive.Value);
-                }
-
                 _characterDictionary = _characterDictionaryTmp;
                 //SendingJSONToServer();
             }
