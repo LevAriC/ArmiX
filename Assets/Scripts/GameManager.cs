@@ -299,15 +299,17 @@ public class GameManager : MonoBehaviour
 
             if (_leftThisTurn <= 0)
             {
-                if(IsMyTurn())
-                {
 
-                }
                 _leftThisTurn = WhosTurn == PlayerTwoColor ? _playerOneLeft : _playerTwoLeft;
                 if (IsSingleplayer)
                 {
                     WhosTurn = WhosTurn == PlayerTwoColor ? PlayerOneColor : PlayerTwoColor;
                     SingleplayerUserID();
+                }
+                else
+                {
+                    if (IsMyTurn())
+                        SendingJSONToServer();
                 }
 
                 foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
