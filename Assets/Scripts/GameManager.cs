@@ -141,7 +141,10 @@ public class GameManager : MonoBehaviour
     {
         if(GameStarted)
         {
-            if(!GameOver)
+            if (Input.GetKeyDown(KeyCode.E))
+                WarpClient.GetInstance().stopGame();
+
+            if (!GameOver)
             {
                 if(IsMyTurn() || IsSingleplayer)
                 {
@@ -154,6 +157,7 @@ public class GameManager : MonoBehaviour
                 _restartButton.gameObject.SetActive(true);
             }
         }
+
     }
      
     private void SpawnCharacter()
