@@ -147,8 +147,8 @@ public class StartMenu : MonoBehaviour
         Dictionary<string, object> _prams = eventObj.getProperties();
         if (_prams != null && _prams.ContainsKey("Password"))
         {
-            int _pass = (int)_prams["Password"];
-            if (_pass == (int)matchRoomData["Password"])
+            int _pass = Convert.ToInt32(_prams["Password"]);
+            if (_pass == Convert.ToInt32(matchRoomData["Password"]))
             {
                 curRoomId = eventObj.getData().getId();
                 UpdateStatus("Joining Room " + curRoomId);
