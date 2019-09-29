@@ -26,6 +26,7 @@ public class StartMenu : MonoBehaviour
     private string secretKey = "77e4c68e882c992617656369508b5c95cefe9ad18eb22fb40e9edae7a3b0ebf5";
     private string curRoomId;
     private int roomIdx = 0;
+    private int _password;
     public Listener listen;
 
     private void OnEnable()
@@ -65,7 +66,6 @@ public class StartMenu : MonoBehaviour
         WarpClient.GetInstance().AddTurnBasedRoomRequestListener(listen);
 
         matchRoomData = new Dictionary<string, object>();
-        matchRoomData.Add("Password", _slider.GetComponent<Slider>().value);
     }
     #endregion
 
@@ -147,8 +147,12 @@ public class StartMenu : MonoBehaviour
         Dictionary<string, object> _prams = eventObj.getProperties();
         if (_prams != null && _prams.ContainsKey("Password"))
         {
-            int _pass = Convert.ToInt32(_prams["Password"]);
-            if (_pass == Convert.ToInt32(matchRoomData["Password"]))
+            string _pass = _prams["Password"].ToString();
+            Debug.Log("_pass - " + _pass);
+            Debug.Log("_password - " + _password);
+            Debug.Log("_passs - " + matchRoomData["Password"].ToString());
+
+            if (_pass == matchRoomData["Password"].ToString())
             {
                 curRoomId = eventObj.getData().getId();
                 UpdateStatus("Joining Room " + curRoomId);
@@ -166,6 +170,7 @@ public class StartMenu : MonoBehaviour
             else
             {
                 UpdateStatus("Password Incorrect");
+                Debug.Log("Password Incorrect");
                 roomIdx++;
                 DoRoomSearchLogic();
             }
@@ -276,12 +281,13 @@ public class StartMenu : MonoBehaviour
 
     public void UpdateSlider()
     {
-        int _value = (int)_slider.GetComponent<Slider>().value;
-        _slider.GetComponentInChildren<Text>().text = _value.ToString();
+        _password = (int)_slider.GetComponent<Slider>().value;
+        _slider.GetComponentInChildren<Text>().text = _password.ToString();
     }
 
     public void StartMulti()
     {
+        matchRoomData.Add("Password", _password.ToString());
         _slider.transform.parent.gameObject.SetActive(false);
         _multiplayerPanel.gameObject.SetActive(true);
     }
