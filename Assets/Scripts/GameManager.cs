@@ -1,6 +1,7 @@
 ﻿using AssemblyCSharp;
 using com.shephertz.app42.gaming.multiplayer.client;
 using com.shephertz.app42.gaming.multiplayer.client.events;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,8 +47,6 @@ public class GameManager : MonoBehaviour
     public Character _characterEnemyClicked { get; set; }
     #endregion
 
-    #region Multiplayer
-    public Dictionary<string, object> _toSend;
     public bool IsMyTurn()
     {
         foreach (KeyValuePair<string, Character.CharacterColors> player in _playersDictionary)
@@ -59,18 +58,22 @@ public class GameManager : MonoBehaviour
         }
         return false;
     }
+    #region Multiplayer
 
     private void OnGameStarted(string _Sender, string _RoomId, string _NextTurn)
     {
         GameStarted = true;
-        if(_NextTurn == UserId)
-            WhosTurn = PlayerOneColor;
-        else
-            WhosTurn = PlayerTwoColor;
+        WhosTurn = PlayerOneColor;
     }
 
     private void SendingJSONToServer()
     {
+        Dictionary<string, object> _toSend = new Dictionary<string, object>();
+        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+        {
+            _toSend.Add(alive.Key.ToString(), alive.Value);
+        }
+
         string _send = MiniJSON.Json.Serialize(_toSend);
         WarpClient.GetInstance().sendMove(_send);
     }
@@ -80,14 +83,25 @@ public class GameManager : MonoBehaviour
         if (_Move.getSender() != UserId)
         {
             Dictionary<string, object> _data = (Dictionary<string, object>)MiniJSON.Json.Deserialize(_Move.getMoveData());
-            if (_data != null && _data.ContainsKey("Index"))
+            if (_data != null)
             {
-                int _index = int.Parse(_data["Index"].ToString());
-                SendingJSONToServer();
+                var _characterDictionaryTmp = new Dictionary<Vector2Int, Character>();
+                foreach(KeyValuePair<string, object> alive in _data)
+                {
+                    _characterDictionaryTmp.Add((Vector2Int)Enum.Parse(typeof(Vector2Int), alive.Key), (Character)alive.Value);
+                }
+
+                _characterDictionary = _characterDictionaryTmp;
+                //SendingJSONToServer();
+            }
+            else
+            {
+                Debug.Log("Data not received");
             }
         }
 
         WhosTurn = _playersDictionary[_Move.getNextTurn()];
+        GUI.stateChanged = true;
     }
 
     private void OnGameStopped(string _Sender, string _RoomId)
@@ -118,7 +132,6 @@ public class GameManager : MonoBehaviour
 
         _characterDictionary = new Dictionary<Vector2Int, Character>();
         _playersDictionary = new Dictionary<string, Character.CharacterColors>();
-        _toSend = new Dictionary<string, object>();
 
         PlayerOneColor = Character.CharacterColors.None;
         PlayerTwoColor = Character.CharacterColors.None;
@@ -222,7 +235,7 @@ public class GameManager : MonoBehaviour
 
         if(IsSingleplayer)
         {
-            WhosTurn = Random.value > 0.5f ? PlayerOneColor : PlayerTwoColor;
+            WhosTurn = UnityEngine.Random.value > 0.5f ? PlayerOneColor : PlayerTwoColor;
             SingleplayerUserID();
         }
 
@@ -286,6 +299,10 @@ public class GameManager : MonoBehaviour
 
             if (_leftThisTurn <= 0)
             {
+                if(IsMyTurn())
+                {
+
+                }
                 _leftThisTurn = WhosTurn == PlayerTwoColor ? _playerOneLeft : _playerTwoLeft;
                 if (IsSingleplayer)
                 {
