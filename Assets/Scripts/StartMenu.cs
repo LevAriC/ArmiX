@@ -16,6 +16,7 @@ public class StartMenu : MonoBehaviour
     [SerializeField] GameObject[] _firstButton;
     [SerializeField] GameObject _multiplayerPanel;
     [SerializeField] GameObject _statusText;
+    [SerializeField] GameObject _slider;
 
     private enum MenuScreen { MainMenu, Singleplayer, Multiplayer, Options, Loading };
     private MenuScreen _currentScreen;
@@ -64,7 +65,7 @@ public class StartMenu : MonoBehaviour
         WarpClient.GetInstance().AddTurnBasedRoomRequestListener(listen);
 
         matchRoomData = new Dictionary<string, object>();
-        matchRoomData.Add("Password", "Shenkar");
+        matchRoomData.Add("Password", _slider.GetComponent<Slider>().value);
     }
     #endregion
 
@@ -146,8 +147,8 @@ public class StartMenu : MonoBehaviour
         Dictionary<string, object> _prams = eventObj.getProperties();
         if (_prams != null && _prams.ContainsKey("Password"))
         {
-            string _pass = _prams["Password"].ToString();
-            if (_pass == matchRoomData["Password"].ToString())
+            int _pass = (int)_prams["Password"];
+            if (_pass == (int)matchRoomData["Password"])
             {
                 curRoomId = eventObj.getData().getId();
                 UpdateStatus("Joining Room " + curRoomId);
@@ -164,6 +165,7 @@ public class StartMenu : MonoBehaviour
             }
             else
             {
+                UpdateStatus("Password Incorrect");
                 roomIdx++;
                 DoRoomSearchLogic();
             }
@@ -228,6 +230,7 @@ public class StartMenu : MonoBehaviour
             UpdateStatus("Searching for room...");
             WarpClient.GetInstance().GetRoomsInRange(1, 2);
         }
+
         if (newScreen == MenuScreen.Loading && _currentScreen == MenuScreen.Singleplayer)
         {
             gameObject.SetActive(false);
@@ -269,6 +272,18 @@ public class StartMenu : MonoBehaviour
     private void UpdateStatus(string _NewStatus)
     {
         _statusText.GetComponent<Text>().text = _NewStatus;
+    }
+
+    public void UpdateSlider()
+    {
+        int _value = (int)_slider.GetComponent<Slider>().value;
+        _slider.GetComponentInChildren<Text>().text = _value.ToString();
+    }
+
+    public void StartMulti()
+    {
+        _slider.transform.parent.gameObject.SetActive(false);
+        _multiplayerPanel.gameObject.SetActive(true);
     }
     #endregion
 }
