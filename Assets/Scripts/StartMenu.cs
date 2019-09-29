@@ -238,7 +238,8 @@ public class StartMenu : MonoBehaviour
         }
         _screens[(int)newScreen].SetActive(true);
         _currentScreen = newScreen;
-        _eventSystem.SetSelectedGameObject(_firstButton[(int)newScreen].gameObject);
+        if(_firstButton[(int)newScreen] != null)
+            _eventSystem.SetSelectedGameObject(_firstButton[(int)newScreen].gameObject);
 
     }
 
@@ -258,6 +259,7 @@ public class StartMenu : MonoBehaviour
             {
                 GameManager.Instance.PlayerOneColor = (Character.CharacterColors)color;
                 matchRoomData.Add("PlayerOneColor", GameManager.Instance.PlayerOneColor.ToString());
+                GameManager.Instance._playersDictionary.Add(GameManager.Instance.UserId, GameManager.Instance.PlayerOneColor);
             }
         }
         //else
