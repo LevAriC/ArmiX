@@ -17,6 +17,7 @@ public class StartMenu : MonoBehaviour
     [SerializeField] GameObject _multiplayerPanel;
     [SerializeField] GameObject _statusText;
     [SerializeField] GameObject _slider;
+    [SerializeField] GameObject _sliderMusic;
 
     private enum MenuScreen { MainMenu, Singleplayer, Multiplayer, Options, Loading };
     private MenuScreen _currentScreen;
@@ -284,12 +285,23 @@ public class StartMenu : MonoBehaviour
         _password = (int)_slider.GetComponent<Slider>().value;
         _slider.GetComponentInChildren<Text>().text = _password.ToString();
     }
-
+    public void MusicVolumeSlider()
+    {
+        int volume = (int)_sliderMusic.GetComponent<Slider>().value;
+        GameManager.Instance.SetMusicVolume(volume);
+        _sliderMusic.GetComponentInChildren<Text>().text = volume.ToString();
+    }
     public void StartMulti()
     {
         matchRoomData.Add("Password", _password.ToString());
         _slider.transform.parent.gameObject.SetActive(false);
         _multiplayerPanel.gameObject.SetActive(true);
     }
+    public void QuitGame()
+    {
+        Debug.Log("sdsdsd");
+        Application.Quit();
+    }
+
     #endregion
 }

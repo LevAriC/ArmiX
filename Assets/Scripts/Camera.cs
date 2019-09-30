@@ -33,10 +33,7 @@ public class Camera : MonoBehaviour
 
     protected void Start()
     {
-        _prevColor = GameManager.Instance.WhosTurn;
-        _prevTurn = GameManager.Instance.WhosTurn == GameManager.Instance.PlayerOneColor? false : true;
-        _z = _prevTurn ? _z : -_z;
-        _zz = _prevTurn ? _zz : -_zz;
+        StartCoroutine(PlayersChoosingColor());
     }
     protected void Update()
     {
@@ -68,5 +65,23 @@ public class Camera : MonoBehaviour
     private Vector3 LookHere()
     {
         return target.position + new Vector3(_xx, _yy, _zz);
+    }
+
+    private void InitCameraLocation()
+    {
+        _prevColor = GameManager.Instance.WhosTurn;
+        _prevTurn = GameManager.Instance.WhosTurn == GameManager.Instance.PlayerOneColor ? false : true;
+        _z = _prevTurn ? _z : -_z;
+        _zz = _prevTurn ? _zz : -_zz;
+    }
+
+    private IEnumerator PlayersChoosingColor()
+    {
+        while (!GameManager.Instance.GameStarted)
+        {
+            yield return null;
+        }
+
+        InitCameraLocation();
     }
 }

@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] Character[] _characterTypes;
     [SerializeField] Surface _gameBoard;
     [SerializeField] Button _restartButton;
+    [SerializeField] AudioSource _gameMusic;
 
     [Header("Variables")]
     [SerializeField] int _charactersPerPlayer;
@@ -33,9 +34,9 @@ public class GameManager : MonoBehaviour
     public string UserId { get; set; }
     public bool IsSingleplayer { get; set; }
 
+    public bool ChoosingColor { get; private set; }
     public Dictionary<string, Character.CharacterColors> _playersDictionary;
     public bool InvalidCommand { get; set; }
-    private bool _choosingColor;
     private int _leftThisTurn;
     private int _playerOneLeft;
     private int _playerTwoLeft;
@@ -123,6 +124,7 @@ public class GameManager : MonoBehaviour
     protected void Awake()
     {
         Instance = this;
+        ChoosingColor = true;
 
         _characterDictionary = new Dictionary<Vector2Int, Character>();
         _playersDictionary = new Dictionary<string, Character.CharacterColors>();
@@ -142,6 +144,7 @@ public class GameManager : MonoBehaviour
         GUI.menuInstance.OverwatchEvent += OnCharacterOverwatchingTile;
         GUI.menuInstance.AttackPressedEvent += () => _characterClicked.myAnimator.SetTrigger("isAttacking");
         StartCoroutine(PlayersChoosingColor());
+        SetMusicVolume(20);
     }
 
     protected void Update()
@@ -198,8 +201,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator PlayersChoosingColor()
     {
-        _choosingColor = true;
-        while (_choosingColor)
+        while (ChoosingColor)
         {
             if (PlayerOneColor != Character.CharacterColors.None)
                 if(IsSingleplayer)
@@ -214,7 +216,7 @@ public class GameManager : MonoBehaviour
                 //    _playersDictionary.Add(UserId, Character.CharacterColors.Black);
 
             if (PlayerOneColor != Character.CharacterColors.None && PlayerTwoColor != Character.CharacterColors.None)
-                _choosingColor = false;
+                ChoosingColor = false;
 
             yield return null;
         }
@@ -377,5 +379,10 @@ public class GameManager : MonoBehaviour
         //        _characterDictionary.Add(new Vector2Int(_whereClicked.x, _whereClicked.y), _characterClicked);
         //    }
         //}
+    }
+
+    public void SetMusicVolume(int volume)
+    {
+        _gameMusic.volume = volume / 100f;
     }
 }

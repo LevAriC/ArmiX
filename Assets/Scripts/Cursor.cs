@@ -24,26 +24,15 @@ public class Cursor : MonoBehaviour
 
     protected void Start()
     {
-        _maxX = GameManager.Instance.GetBoard.GetWidth - 1; 
+        _maxX = GameManager.Instance.GetBoard.GetWidth - 1;
         _maxY = GameManager.Instance.GetBoard.GetHeight - 1;
 
-        if(GameManager.Instance.WhosTurn == GameManager.Instance.PlayerOneColor) 
-        {
-            _posX = 0;
-            _posY = 0;
-        }
-        else
-        {
-            _posX = _maxX;
-            _posY = _maxY;
-        }
-
-        MoveCursor(_posX, _posY);
+        StartCoroutine(PlayersChoosingColor());
     }
 
     protected void Update()
     {
-        if((GameManager.Instance.GameStarted && GameManager.Instance.IsMyTurn()) || GameManager.Instance.IsSingleplayer)
+        if ((GameManager.Instance.GameStarted && GameManager.Instance.IsMyTurn()) || GameManager.Instance.IsSingleplayer)
             CursorMovement();
     }
 
@@ -53,6 +42,8 @@ public class Cursor : MonoBehaviour
         _posY = y;
         _currentTile = GameManager.Instance.GetBoard.GetFromBoard(x, y);
         transform.position = _currentTile.transform.position;
+
+        Debug.Log("x - " + _posX + "y - " + _posY);
     }
 
     private void DefaultMovement(int restrict = -1, int originX = -1, int originY = -1)
@@ -74,13 +65,13 @@ public class Cursor : MonoBehaviour
             if (_posY < curMaxY || _posY > curMinY)
                 _posY += GameManager.Instance.IsMyTurn() ? 1 : -1;
         if (Input.GetKeyDown(KeyCode.DownArrow))
-            if(_posY > curMinY || _posY < curMaxY)
+            if (_posY > curMinY || _posY < curMaxY)
                 _posY += GameManager.Instance.IsMyTurn() ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.LeftArrow))
-            if(_posX > curMinX || _posX < curMaxX)
+            if (_posX > curMinX || _posX < curMaxX)
                 _posX += GameManager.Instance.IsMyTurn() ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.RightArrow))
-            if(_posX < curMaxX || _posX > curMinX)
+            if (_posX < curMaxX || _posX > curMinX)
                 _posX += GameManager.Instance.IsMyTurn() ? 1 : -1;
 
         if (_posX < curMinX) _posX = curMinX;
@@ -119,7 +110,7 @@ public class Cursor : MonoBehaviour
                 if (_restrictedList == null)
                 {
                     _restrictedList = new List<Vector2Int>(GameManager.Instance.GetTargetsInRange());
-                    if(_restrictedList.Count == 0)
+                    if (_restrictedList.Count == 0)
                     {
                         GameManager.Instance._characterClicked.attackedThisTurn = false;
                         GUI.menuInstance.attackRoutine = false;
@@ -156,5 +147,30 @@ public class Cursor : MonoBehaviour
         }
 
         MoveCursor(_posX, _posY);
+    }
+
+    private void InitCursorLocation()
+    {
+        if (GameManager.Instance.WhosTurn == GameManager.Instance.PlayerOneColor)
+        {
+            _posX = 0;
+            _posY = 0;
+        }
+        else
+        {
+            _posX = _maxX;
+            _posY = _maxY;
+        }
+
+        MoveCursor(_posX, _posY);
+    }
+    private IEnumerator PlayersChoosingColor()
+    {
+        while (!GameManager.Instance.GameStarted)
+        {
+            yield return null;
+        }
+
+        InitCursorLocation();
     }
 }

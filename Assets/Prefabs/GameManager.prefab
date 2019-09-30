@@ -54,4 +54,5 @@ MonoBehaviour:
   - {fileID: 3719776614740411828, guid: ea0aa05d1318b9048bd4c8c4b362d1e1, type: 3}
   _gameBoard: {fileID: 0}
   _restartButton: {fileID: 0}
+  _gameMusic: {fileID: 0}
   _charactersPerPlayer: 3
