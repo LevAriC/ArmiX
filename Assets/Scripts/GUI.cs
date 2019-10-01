@@ -74,7 +74,6 @@ public class GUI : MonoBehaviour
         if (!GameManager.Instance._characterClicked.attackedThisTurn)
         {
             attackRoutine = true;
-            //GameManager.Instance._characterClicked.showPossibleMove(true);
             ToggleMenu(false);
             StartCoroutine(WaitUntilChosen());
             AttackPressedEvent?.Invoke();
@@ -110,7 +109,7 @@ public class GUI : MonoBehaviour
 
         ToggleMenu(false);
         targetChoosed = false;
-        stateChanged = false; // Should be event
+        stateChanged = false;
         RoutinesReset();
     }
 
@@ -120,14 +119,18 @@ public class GUI : MonoBehaviour
             TurnText();
     }
 
-    public void MenuController()
+    public void GameController()
     {
         if (Input.GetKeyDown(KeyCode.Space) && !menuOpen && !playerIsChoosing)
         {
             if (GameManager.Instance.IsCharacterHere())
             {
-                GameManager.Instance._characterClicked = GameManager.Instance._characterDictionary[GameManager.Instance._whereClicked];
-                //if (GameManager.Instance.IsMyTurn() || GameManager.Instance.IsSingleplayer)
+                foreach (var alive in GameManager.Instance._characterDictionary)
+                {
+                    if (alive.Value == GameManager.Instance._whereClicked)
+                        GameManager.Instance._characterClicked = alive.Key;
+                }
+
                 if (GameManager.Instance.IsMyTurn())
                 {
                     ToggleMenu(true);
@@ -140,9 +143,7 @@ public class GUI : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && !menuOpen && playerIsChoosing)
-        {
             playerIsChoosing = false;
-        }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -150,26 +151,14 @@ public class GUI : MonoBehaviour
             if (GameManager.Instance._characterClicked != null)
                 Cursor.cursorInstance.MoveCursor(GameManager.Instance._whereClicked.x, GameManager.Instance._whereClicked.y);
         }
+
+        if (Input.GetKeyDown(KeyCode.T))
+            GameManager.Instance.EndTurn();
     }
-
-    //private bool IsMyTurn()
-    //{
-    //    if (GameManager.Instance._characterClicked && GameManager.Instance._characterClicked.IsPlayerOne == GameManager.Instance.WhosTurn)
-
-    //        if (GameManager.Instance.UserId == null && !GameManager.Instance.GameStarted)
-    //    {
-    //        if (GameManager.Instance._characterClicked && GameManager.Instance._characterClicked.IsPlayerOne == GameManager.Instance.WhosTurn)
-    //            return true;
-    //        else
-    //            return false;
-    //    }
-    //    else
-    //}
 
     private void TurnText()
     {
         if(!GameManager.Instance.GameOver)
-            //_turnText.GetComponent<Text>().text = GameManager.Instance.WhosTurn.ToString() + " Turn";
             _turnText.GetComponent<Text>().text = GameManager.Instance.WhosTurn.ToString() + " Turn";
         else
             _turnText.GetComponent<Text>().text = GameManager.Instance.WhosTurn.ToString() + " Won!!";
@@ -207,14 +196,20 @@ public class GUI : MonoBehaviour
 
         if (attackRoutine)
         {
+            Character character = null;
             var attackerPos = GameManager.Instance._whereClicked;
             if (GameManager.Instance.IsCharacterHere())
             {
-                var character = GameManager.Instance._characterDictionary[GameManager.Instance._whereClicked];
-                var defenderPos = GameManager.Instance._whereClicked;
-                int distance = (int)Math.Floor(Math.Sqrt(attackerPos.x + defenderPos.x) + Math.Sqrt(attackerPos.y + defenderPos.y));
+                foreach (var alive in GameManager.Instance._characterDictionary)
+                {
+                    if (alive.Value == GameManager.Instance._whereClicked)
+                        character = alive.Key;
+                }
 
-                GameManager.Instance._characterEnemyClicked = character;
+                var defenderPos = GameManager.Instance._whereClicked;
+                int distance = (int)Math.Floor(Math.Sqrt(Math.Abs(attackerPos.x - defenderPos.x)) + Math.Sqrt(Math.Abs(attackerPos.y - defenderPos.y)));
+                if(character)
+                    GameManager.Instance._characterEnemyClicked = character;
                 var didHit = _combatLogic.AttackEnemy(GameManager.Instance._characterClicked, GameManager.Instance._characterEnemyClicked, distance);
                 if(didHit)
                 {
@@ -232,9 +227,8 @@ public class GUI : MonoBehaviour
                 GameManager.Instance.InvalidCommand = true;
                 Cursor.cursorInstance.MoveCursor(attackerPos.x, attackerPos.y);
             }
-            //GameManager.Instance._characterClicked.showPossibleMove(false);
+
             GameManager.Instance._characterClicked = null;
-            //GameManager.Instance._characterEnemyClicked.showPossibleMove(false);
             GameManager.Instance._characterEnemyClicked = null;
 
             stateChanged = true;

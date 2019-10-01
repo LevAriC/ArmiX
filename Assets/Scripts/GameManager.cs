@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] int _charactersPerPlayer;
 
     #region Surface
-    public Dictionary<Vector2Int, Character> _characterDictionary { get; private set; }
+    public Dictionary<Character,Vector2Int> _characterDictionary { get; private set; }
     public Surface GetBoard { get { return _gameBoard; } }
     #endregion
 
@@ -48,9 +48,125 @@ public class GameManager : MonoBehaviour
     public Character _characterEnemyClicked { get; set; }
     #endregion
 
+    public static GameManager Instance { get; private set; }
+
+    protected void Awake()
+    {
+        Instance = this;
+        ChoosingColor = true;
+
+        _characterDictionary = new Dictionary<Character,Vector2Int>();
+        _playersDictionary = new Dictionary<string, Character.CharacterColors>();
+
+        PlayerOneColor = Character.CharacterColors.None;
+        PlayerTwoColor = Character.CharacterColors.None;
+
+        _restartButton.gameObject.SetActive(false);
+        GameInit();
+    }
+
+    protected void Start()
+    {
+        _gameBoard.SurfaceInit(transform);
+        SpawnCharacter();
+        GUI.menuInstance.MoveCharacterEvent += OnPlayerMoveCharacter;
+        GUI.menuInstance.OverwatchEvent += OnCharacterOverwatchingTile;
+        GUI.menuInstance.AttackPressedEvent += () => _characterClicked.myAnimator.SetTrigger("isAttacking");
+        StartCoroutine(PlayersChoosingColor());
+        SetMusicVolume(20);
+    }
+
+    protected void Update()
+    {
+        if(GameStarted)
+        {
+            //if (Input.GetKeyDown(KeyCode.E))
+            //    WarpClient.GetInstance().stopGame();
+
+            if (!GameOver)
+            {
+                if(IsMyTurn() || IsSingleplayer)
+                {
+                    GUI.menuInstance.GameController();
+                    TurnManagement();
+                }
+            }
+            else if (GameOver)
+            {
+                _restartButton.gameObject.SetActive(true);
+            }
+        }
+
+    }
+    private void GameInit()
+    {
+        WhosTurn = Character.CharacterColors.None;
+        GameOver = false;
+        _leftThisTurn = _charactersPerPlayer;
+        _playerOneLeft = _charactersPerPlayer;
+        _playerTwoLeft = _charactersPerPlayer;
+    }
+    private void SpawnCharacter()
+    {
+        for(int i = 0; i < _charactersPerPlayer * 2; i++)
+        {
+            var newCharacter = Instantiate(_characterTypes[i % _charactersPerPlayer]);
+            if (i < _charactersPerPlayer)
+            {
+                newCharacter.IsPlayerOne = true;
+                _gameBoard.SetCharacterOnBoard(i, 0, newCharacter);
+                _characterDictionary.Add(newCharacter, new Vector2Int(i, 0));
+            }
+            else
+            {
+                newCharacter.IsPlayerOne = false;
+                newCharacter.transform.rotation = Quaternion.Euler(0, 180, 0);
+                _gameBoard.SetCharacterOnBoard(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1, newCharacter);
+                _characterDictionary.Add(newCharacter, new Vector2Int(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1));
+            }
+        }
+    }
+    private void SingleplayerUserID()
+    {
+        UserId = WhosTurn == PlayerOneColor ? "PlayerOne" : "PlayerTwo";
+    }
+    private IEnumerator PlayersChoosingColor()
+    {
+        while (ChoosingColor)
+        {
+            if (PlayerOneColor != Character.CharacterColors.None)
+                if(IsSingleplayer)
+                    _playersDictionary.Add("PlayerOne", PlayerOneColor);
+
+            if (PlayerTwoColor != Character.CharacterColors.None)
+                if (IsSingleplayer)
+                    _playersDictionary.Add("PlayerTwo", PlayerTwoColor);
+
+            if (PlayerOneColor != Character.CharacterColors.None && PlayerTwoColor != Character.CharacterColors.None)
+                ChoosingColor = false;
+
+            yield return null;
+        }
+
+        foreach (var alive in _characterDictionary.ToList())
+        {
+            if (alive.Key.IsPlayerOne)
+                alive.Key.SetColor(PlayerOneColor);
+            else
+                alive.Key.SetColor(PlayerTwoColor);
+        }
+
+        if(IsSingleplayer)
+        {
+            WhosTurn = UnityEngine.Random.value > 0.5f ? PlayerOneColor : PlayerTwoColor;
+            SingleplayerUserID();
+        }
+
+        GameStarted = true;
+    }
     public bool IsMyTurn()
     {
-        foreach (KeyValuePair<string, Character.CharacterColors> player in _playersDictionary)
+        foreach (var player in _playersDictionary)
         {
             if (player.Value == WhosTurn && player.Key == UserId && _characterClicked == null)
                 return true;
@@ -59,6 +175,157 @@ public class GameManager : MonoBehaviour
         }
         return false;
     }
+    public List<Vector2Int> GetTargetsInRange()
+    {
+        List<Vector2Int> tmpList = new List<Vector2Int>();
+        foreach (var alive in _characterDictionary.ToList())
+        {
+            if (alive.Key.MyColor != WhosTurn)
+            {
+                if(_whereClicked.x <= alive.Value.x && alive.Value.x <= (_whereClicked.x + _characterClicked.getRange) &&
+                   _whereClicked.y <= alive.Value.y && alive.Value.y <= (_whereClicked.y + _characterClicked.getRange) ||
+                   _whereClicked.x >= alive.Value.x && alive.Value.x >= (_whereClicked.x - _characterClicked.getRange) &&
+                   _whereClicked.y >= alive.Value.y && alive.Value.y >= (_whereClicked.y - _characterClicked.getRange))
+                tmpList.Add(alive.Value);
+            }
+        }
+
+        return tmpList;
+    }
+
+    private void TurnManagement()
+    {
+        if (GUI.stateChanged)
+        {
+            if (_leftThisTurn > 0)
+            {
+                foreach (var alive in _characterDictionary.ToList())
+                {
+                    alive.Key.UpdateStatus();
+                    if (alive.Key.isDead)
+                    {
+                        if (!CheckGameIsOver(alive.Key.IsPlayerOne))
+                        {
+                            _characterDictionary.Remove(alive.Key);
+                            Destroy(alive.Key.gameObject);
+                        }
+                        else
+                        {
+                            WarpClient.GetInstance().stopGame();
+                            return;
+                        }
+                    }
+                }
+
+                _leftThisTurn--;
+            }
+
+            if (_leftThisTurn <= 0)
+            {
+
+                _leftThisTurn = WhosTurn == PlayerTwoColor ? _playerOneLeft : _playerTwoLeft;
+                if (IsSingleplayer)
+                {
+                    WhosTurn = WhosTurn == PlayerTwoColor ? PlayerOneColor : PlayerTwoColor;
+                    SingleplayerUserID();
+                }
+                else
+                {
+                    if (IsMyTurn())
+                        SendingJSONToServer();
+                }
+
+                foreach (var alive in _characterDictionary.ToList())
+                {
+                    if (alive.Key.MyColor == WhosTurn || alive.Key.MyColor != WhosTurn)
+                        Cursor.cursorInstance.MoveCursor(alive.Value.x, alive.Value.y);
+
+                    alive.Key.ResetState();
+                }
+
+            }
+        }
+
+        GUI.stateChanged = false;
+    } 
+
+    private bool CheckGameIsOver(bool player)
+    {
+        if (player)
+            _playerOneLeft--;
+        else
+            _playerTwoLeft--;
+
+        if (_playerTwoLeft <= 0 || _playerOneLeft <= 0)
+            return GameOver = true;
+
+        return false;
+    }
+
+    public void RestartGame()
+    {
+        GameInit();
+        if(_characterDictionary != null)
+        {
+            foreach (var alive in _characterDictionary.ToList())
+                Destroy(alive.Key.gameObject);
+        }
+
+        _characterDictionary = new Dictionary<Character,Vector2Int>();
+        SpawnCharacter();
+        _restartButton.gameObject.SetActive(false); 
+    }
+
+    public bool IsCharacterHere()
+    {
+        _whereClicked = Cursor.cursorInstance.GetCoords;
+        foreach (var alive in _characterDictionary)
+        {
+            if (alive.Value == _whereClicked)
+                return true;
+        }
+        return false;
+    }
+    private void OnPlayerMoveCharacter()
+    {
+        _gameBoard.SetCharacterOnBoard(_whereClicked.x, _whereClicked.y, _characterClicked);
+
+        foreach (var alive in _characterDictionary.ToList())
+        {
+            if (alive.Key.getCharacterID == _characterClicked.getCharacterID)
+            {
+                _characterDictionary[alive.Key] = new Vector2Int(_whereClicked.x, _whereClicked.y);
+            }
+        }
+    }
+
+    private void OnCharacterOverwatchingTile()
+    {
+        _gameBoard.SetTextureOnTiles(_whereClicked.x, _whereClicked.y, _tilesTypes[3]);
+
+        //foreach (KeyValuePair<Character, Vector2Int> alive in _characterDictionary)
+        //{
+        //    if (alive.Value.getCharacterID == _characterClicked.getCharacterID)
+        //    {
+        //        _characterDictionary.Remove(alive.Key);
+        //        _characterDictionary.Add(new Vector2Int(_whereClicked.x, _whereClicked.y), _characterClicked);
+        //    }
+        //}
+    }
+
+    public void SetMusicVolume(int volume)
+    {
+        _gameMusic.volume = volume / 100f;
+    }
+
+    public void EndTurn()
+    {
+        GUI.stateChanged = true;
+
+        if (GameStarted)
+            _leftThisTurn = 0;
+    }
+
     #region Multiplayer
 
     private void OnGameStarted(string _Sender, string _RoomId, string _NextTurn)
@@ -70,7 +337,7 @@ public class GameManager : MonoBehaviour
     private void SendingJSONToServer()
     {
         //Dictionary<Vector2Int, object> _toSend = new Dictionary<string, object>();
-        //foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
+        //foreach (KeyValuePair<Character, Vector2Int> alive in _characterDictionary)
         //{
         //    _toSend.Add(alive.Key, alive.Value);
         //}
@@ -83,7 +350,7 @@ public class GameManager : MonoBehaviour
     {
         if (_Move.getSender() != UserId)
         {
-            Dictionary<Vector2Int, Character> _characterDictionaryTmp = (Dictionary<Vector2Int, Character>)MiniJSON.Json.Deserialize(_Move.getMoveData());
+            Dictionary<Character,Vector2Int> _characterDictionaryTmp = (Dictionary<Character,Vector2Int>)MiniJSON.Json.Deserialize(_Move.getMoveData());
             if (_characterDictionaryTmp != null)
             {
                 _characterDictionary = _characterDictionaryTmp;
@@ -118,271 +385,5 @@ public class GameManager : MonoBehaviour
         Listener.OnGameStopped -= OnGameStopped;
     }
     #endregion
-
-    public static GameManager Instance { get; private set; }
-
-    protected void Awake()
-    {
-        Instance = this;
-        ChoosingColor = true;
-
-        _characterDictionary = new Dictionary<Vector2Int, Character>();
-        _playersDictionary = new Dictionary<string, Character.CharacterColors>();
-
-        PlayerOneColor = Character.CharacterColors.None;
-        PlayerTwoColor = Character.CharacterColors.None;
-
-        _restartButton.gameObject.SetActive(false);
-        GameInit();
-    }
-
-    protected void Start()
-    {
-        _gameBoard.SurfaceInit(transform);
-        SpawnCharacter();
-        GUI.menuInstance.MoveCharacterEvent += OnPlayerMoveCharacter;
-        GUI.menuInstance.OverwatchEvent += OnCharacterOverwatchingTile;
-        GUI.menuInstance.AttackPressedEvent += () => _characterClicked.myAnimator.SetTrigger("isAttacking");
-        StartCoroutine(PlayersChoosingColor());
-        SetMusicVolume(20);
-    }
-
-    protected void Update()
-    {
-        if(GameStarted)
-        {
-            if (Input.GetKeyDown(KeyCode.E))
-                WarpClient.GetInstance().stopGame();
-
-            if (!GameOver)
-            {
-                if(IsMyTurn() || IsSingleplayer)
-                {
-                    GUI.menuInstance.MenuController();
-                    TurnManagement();
-                }
-            }
-            else if (GameOver)
-            {
-                _restartButton.gameObject.SetActive(true);
-            }
-        }
-
-    }
-     
-    private void SpawnCharacter()
-    {
-        for(int i = 0; i < _charactersPerPlayer * 2; i++)
-        {
-            var newCharacter = Instantiate(_characterTypes[i % _charactersPerPlayer]);
-            if (i < _charactersPerPlayer)
-            {
-                newCharacter.IsPlayerOne = true;
-                _gameBoard.SetCharacterOnBoard(i, 0, newCharacter);
-                _characterDictionary.Add(new Vector2Int(i, 0), newCharacter);
-            }
-            else
-            {
-                newCharacter.IsPlayerOne = false;
-                newCharacter.transform.rotation = Quaternion.Euler(0, 180, 0);
-                _gameBoard.SetCharacterOnBoard(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1, newCharacter);
-                _characterDictionary.Add(new Vector2Int(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1), newCharacter);
-            }
-        }
-    }
-
-    private void SingleplayerUserID()
-    {
-        if (WhosTurn == PlayerOneColor)
-            UserId = "PlayerOne";
-        else
-            UserId = "PlayerTwo";
-    }
-
-    private IEnumerator PlayersChoosingColor()
-    {
-        while (ChoosingColor)
-        {
-            if (PlayerOneColor != Character.CharacterColors.None)
-                if(IsSingleplayer)
-                    _playersDictionary.Add("PlayerOne", PlayerOneColor);
-                //else
-                //    _playersDictionary.Add(UserId, PlayerOneColor);
-
-            if (PlayerTwoColor != Character.CharacterColors.None)
-                if (IsSingleplayer)
-                    _playersDictionary.Add("PlayerTwo", PlayerTwoColor);
-                //else
-                //    _playersDictionary.Add(UserId, Character.CharacterColors.Black);
-
-            if (PlayerOneColor != Character.CharacterColors.None && PlayerTwoColor != Character.CharacterColors.None)
-                ChoosingColor = false;
-
-            yield return null;
-        }
-
-        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
-        {
-            if (alive.Value.IsPlayerOne)
-                alive.Value.SetColor(PlayerOneColor);
-            else
-                alive.Value.SetColor(PlayerTwoColor);
-        }
-
-        if(IsSingleplayer)
-        {
-            WhosTurn = UnityEngine.Random.value > 0.5f ? PlayerOneColor : PlayerTwoColor;
-            SingleplayerUserID();
-        }
-
-        GameStarted = true;
-    }
-
-    private void GameInit()
-    {
-        WhosTurn = Character.CharacterColors.None;
-        GameOver = false;
-        _leftThisTurn = _charactersPerPlayer;
-        _playerOneLeft = _charactersPerPlayer;
-        _playerTwoLeft = _charactersPerPlayer;
-    }
-
-    public List<Vector2Int> GetTargetsInRange()
-    {
-        List<Vector2Int> tmpList = new List<Vector2Int>();
-        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
-        {
-            if (alive.Value.MyColor != WhosTurn)
-            {
-                if(_whereClicked.x <= alive.Key.x && alive.Key.x <= _whereClicked.x + _characterClicked.getRange ||
-                   _whereClicked.x >= alive.Key.x && alive.Key.x >= _whereClicked.x + _characterClicked.getRange ||
-                   _whereClicked.y <= alive.Key.y && alive.Key.y <= _whereClicked.y + _characterClicked.getRange ||
-                   _whereClicked.y >= alive.Key.y && alive.Key.y >= _whereClicked.y + _characterClicked.getRange)
-                tmpList.Add(alive.Key);
-            }
-        }
-
-        return tmpList;
-    }
-
-    private void TurnManagement()
-    {
-        if (GUI.stateChanged)
-        {
-            if (_leftThisTurn > 0)
-            {
-                foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
-                {
-                    alive.Value.UpdateStatus();
-                    if (alive.Value.isDead)
-                    {
-                        if (!CheckGameIsOver(alive.Value.IsPlayerOne))
-                        {
-                            _characterDictionary.Remove(alive.Key);
-                            Destroy(alive.Value.gameObject);
-                        }
-                        else
-                        {
-                            WarpClient.GetInstance().stopGame();
-                            return;
-                        }
-                    }
-                }
-
-                GUI.stateChanged = false;
-                _leftThisTurn--;
-            }
-
-            if (_leftThisTurn <= 0)
-            {
-
-                _leftThisTurn = WhosTurn == PlayerTwoColor ? _playerOneLeft : _playerTwoLeft;
-                if (IsSingleplayer)
-                {
-                    WhosTurn = WhosTurn == PlayerTwoColor ? PlayerOneColor : PlayerTwoColor;
-                    SingleplayerUserID();
-                }
-                else
-                {
-                    if (IsMyTurn())
-                        SendingJSONToServer();
-                }
-
-                foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
-                {
-                    if (alive.Value.MyColor == WhosTurn || alive.Value.MyColor != WhosTurn)
-                        Cursor.cursorInstance.MoveCursor(alive.Key.x, alive.Key.y);
-
-                    alive.Value.ResetState();
-                }
-            }
-        }
-    } 
-
-    private bool CheckGameIsOver(bool player)
-    {
-        if (player)
-            _playerOneLeft--;
-        else
-            _playerTwoLeft--;
-
-        if (_playerTwoLeft <= 0 || _playerOneLeft <= 0)
-            return GameOver = true;
-
-        return false;
-    }
-
-    public void RestartGame()
-    {
-        GameInit();
-        if(_characterDictionary != null)
-        {
-            foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
-                Destroy(alive.Value.gameObject);
-        }
-
-        _characterDictionary = new Dictionary<Vector2Int, Character>();
-        SpawnCharacter();
-        _restartButton.gameObject.SetActive(false); 
-    }
-
-    public bool IsCharacterHere()
-    {
-        _whereClicked = Cursor.cursorInstance.GetCoords;
-        bool isCharHere = _characterDictionary.ContainsKey(_whereClicked) ? true : false;
-        return isCharHere;
-    }
-
-    private void OnPlayerMoveCharacter()
-    {
-        _gameBoard.SetCharacterOnBoard(_whereClicked.x, _whereClicked.y, _characterClicked);
-
-        foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary.ToList())
-        {
-            if (alive.Value.getCharacterID == _characterClicked.getCharacterID)
-            {
-                _characterDictionary.Remove(alive.Key);
-                _characterDictionary.Add(new Vector2Int(_whereClicked.x, _whereClicked.y), _characterClicked);
-            }
-        }
-    }
-
-    private void OnCharacterOverwatchingTile()
-    {
-        _gameBoard.SetTextureOnTiles(_whereClicked.x, _whereClicked.y, _tilesTypes[3]);
-
-        //foreach (KeyValuePair<Vector2Int, Character> alive in _characterDictionary)
-        //{
-        //    if (alive.Value.getCharacterID == _characterClicked.getCharacterID)
-        //    {
-        //        _characterDictionary.Remove(alive.Key);
-        //        _characterDictionary.Add(new Vector2Int(_whereClicked.x, _whereClicked.y), _characterClicked);
-        //    }
-        //}
-    }
-
-    public void SetMusicVolume(int volume)
-    {
-        _gameMusic.volume = volume / 100f;
-    }
 }
+

@@ -42,8 +42,7 @@ public class Cursor : MonoBehaviour
         _posY = y;
         _currentTile = GameManager.Instance.GetBoard.GetFromBoard(x, y);
         transform.position = _currentTile.transform.position;
-
-        Debug.Log("x - " + _posX + "y - " + _posY);
+        //Debug.Log("x - " + _posX + "y - " + _posY);
     }
 
     private void DefaultMovement(int restrict = -1, int originX = -1, int originY = -1)
@@ -63,16 +62,16 @@ public class Cursor : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
             if (_posY < curMaxY || _posY > curMinY)
-                _posY += GameManager.Instance.IsMyTurn() ? 1 : -1;
+                _posY += GameManager.Instance.WhosTurn == GameManager.Instance.PlayerOneColor ? 1 : -1;
         if (Input.GetKeyDown(KeyCode.DownArrow))
             if (_posY > curMinY || _posY < curMaxY)
-                _posY += GameManager.Instance.IsMyTurn() ? -1 : 1;
+                _posY += GameManager.Instance.WhosTurn == GameManager.Instance.PlayerOneColor ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.LeftArrow))
             if (_posX > curMinX || _posX < curMaxX)
-                _posX += GameManager.Instance.IsMyTurn() ? -1 : 1;
+                _posX += GameManager.Instance.WhosTurn == GameManager.Instance.PlayerOneColor ? -1 : 1;
         if (Input.GetKeyDown(KeyCode.RightArrow))
             if (_posX < curMaxX || _posX > curMinX)
-                _posX += GameManager.Instance.IsMyTurn() ? 1 : -1;
+                _posX += GameManager.Instance.WhosTurn == GameManager.Instance.PlayerOneColor ? 1 : -1;
 
         if (_posX < curMinX) _posX = curMinX;
         if (_posX > curMaxX) _posX = curMaxX;
