@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour
     public bool GameOver { get; private set; }
     public string UserId { get; set; }
     public bool IsSingleplayer { get; set; }
+    private bool _reload;
 
     public bool ChoosingColor { get; private set; }
     public Dictionary<string, Character.CharacterColors> _playersDictionary;
@@ -215,7 +216,10 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
-                _leftThisTurn--;
+                if (_reload)
+                    _reload = false;
+                else
+                    _leftThisTurn--;
                 Debug.Log("left - " + _leftThisTurn);
             }
 
@@ -333,6 +337,7 @@ public class GameManager : MonoBehaviour
         foreach (KeyValuePair<Character, Vector2Int> alive in _characterDictionary)
         {
             _toSend.Add(alive.Key.getCharacterID.ToString(), alive.Value.ToString());
+            _toSend.Add(alive.Key.getCharacterID.ToString() + " health", alive.Key.remainingHealth.ToString());
         }
 
         string _send = MiniJSON.Json.Serialize(_toSend);
@@ -354,12 +359,17 @@ public class GameManager : MonoBehaviour
                     foreach (var alive in _characterDictionaryTmp)
                     {
                         if (alive.Key == check.Key.getCharacterID.ToString())
+                        {
                             isExist = true;
+                            var wtf = (Vector2Int)alive.Value;
+                            Debug.Log(wtf);
+                            _gameBoard.SetCharacterOnBoard(wtf.x, wtf.y, check.Key);
+                            _characterDictionary[check.Key] = new Vector2Int(wtf.x, wtf.y);
+                        }
                     }
                     if (!isExist)
                         check.Key.isDead = true;
                 }
-                //_characterDictionary = _characterDictionaryTmp;
             }
             else
             {
@@ -370,6 +380,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("nextTurn - " + nextTurn);
         WhosTurn = _playersDictionary[nextTurn];
         GUI.stateChanged = true;
+        _reload = true;
     }
 
     private void OnGameStopped(string _Sender, string _RoomId)
