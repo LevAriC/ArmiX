@@ -78,8 +78,8 @@ public class GameManager : MonoBehaviour
     {
         if(GameStarted)
         {
-            //if (Input.GetKeyDown(KeyCode.E))
-            //    WarpClient.GetInstance().stopGame();
+            if (Input.GetKeyDown(KeyCode.E))
+                WarpClient.GetInstance().stopGame();
 
             if (!GameOver)
             {
@@ -216,6 +216,7 @@ public class GameManager : MonoBehaviour
                 }
 
                 _leftThisTurn--;
+                Debug.Log("left - " + _leftThisTurn);
             }
 
             if (_leftThisTurn <= 0)
@@ -334,7 +335,8 @@ public class GameManager : MonoBehaviour
             _toSend.Add(alive.Key.getCharacterID.ToString(), alive.Value.ToString());
         }
 
-        string _send = MiniJSON.Json.Serialize(_characterDictionary);
+        string _send = MiniJSON.Json.Serialize(_toSend);
+        WarpClient.GetInstance().sendMove(_send);
     }
 
     private void OnMoveCompleted(MoveEvent _Move)
