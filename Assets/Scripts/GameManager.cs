@@ -221,8 +221,8 @@ public class GameManager : MonoBehaviour
 
             if (_leftThisTurn <= 0)
             {
-
                 _leftThisTurn = WhosTurn == PlayerTwoColor ? _playerOneLeft : _playerTwoLeft;
+                Debug.Log("_leftThisTurn - " + _leftThisTurn);
                 if (IsSingleplayer)
                 {
                     WhosTurn = WhosTurn == PlayerTwoColor ? PlayerOneColor : PlayerTwoColor;
@@ -241,7 +241,6 @@ public class GameManager : MonoBehaviour
 
                     alive.Key.ResetState();
                 }
-
             }
         }
 

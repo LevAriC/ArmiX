@@ -37,8 +37,8 @@ public class Camera : MonoBehaviour
     }
     protected void Update()
     {
-        if(GameManager.Instance.IsSingleplayer)
-        {
+        //if(GameManager.Instance.IsSingleplayer)
+        //{
             if (_prevColor != GameManager.Instance.WhosTurn)
             {
                 _prevTurn = !_prevTurn;
@@ -59,7 +59,7 @@ public class Camera : MonoBehaviour
                 transform.LookAt(LookHere());
                 _prevPos = transform.position;
             }
-        }
+        //}
     }
 
     private Vector3 LookHere()
