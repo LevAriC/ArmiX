@@ -72,7 +72,7 @@ public class GameManager : MonoBehaviour
         GUI.menuInstance.OverwatchEvent += OnCharacterOverwatchingTile;
         GUI.menuInstance.AttackPressedEvent += () => _characterClicked.myAnimator.SetTrigger("isAttacking");
         StartCoroutine(PlayersChoosingColor());
-        SetMusicVolume(20);
+        SetMusicVolume(0);
     }
     protected void Update()
     {
@@ -325,6 +325,7 @@ public class GameManager : MonoBehaviour
     {
         GameStarted = true;
         WhosTurn = PlayerOneColor;
+        Debug.Log("_NextTurn - " + _NextTurn);
     }
 
     private void SendingJSONToServer()
@@ -341,6 +342,8 @@ public class GameManager : MonoBehaviour
 
     private void OnMoveCompleted(MoveEvent _Move)
     {
+        var sender = _Move.getSender();
+        Debug.Log("sender - " + sender);
         if (_Move.getSender() != UserId)
         {
             Dictionary<string, object> _characterDictionaryTmp = (Dictionary<string,object>)MiniJSON.Json.Deserialize(_Move.getMoveData());
@@ -364,8 +367,9 @@ public class GameManager : MonoBehaviour
                 Debug.Log("Data not received");
             }
         }
-
-        WhosTurn = _playersDictionary[_Move.getNextTurn()];
+        var nextTurn = _Move.getNextTurn();
+        Debug.Log("nextTurn - " + nextTurn);
+        WhosTurn = _playersDictionary[nextTurn];
         GUI.stateChanged = true;
     }
 

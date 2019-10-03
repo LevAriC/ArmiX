@@ -204,7 +204,6 @@ public class StartMenu : MonoBehaviour
     {
         Init();
     }
-
     private void Init()
     {
         foreach (GameObject scr in _screens)
@@ -212,13 +211,11 @@ public class StartMenu : MonoBehaviour
 
         ChangeScreenLogic(MenuScreen.MainMenu);
     }
-
     public void ChangeToScreen(string chosenScreen)
     {
         MenuScreen newScreen = (MenuScreen)Enum.Parse(typeof(MenuScreen), chosenScreen);
         ChangeScreenLogic(newScreen);
     }
-
     private void ChangeScreenLogic(MenuScreen newScreen)
     {
         _screens[(int)_currentScreen].SetActive(false);
@@ -248,7 +245,6 @@ public class StartMenu : MonoBehaviour
             _eventSystem.SetSelectedGameObject(_firstButton[(int)newScreen].gameObject);
 
     }
-
     public void ColorChosen(int color)
     {
         if (GameManager.Instance.PlayerOneColor == Character.CharacterColors.None)
