@@ -150,15 +150,18 @@ public class Cursor : MonoBehaviour
 
     private void InitCursorLocation()
     {
-        if (GameManager.Instance.WhosTurn == GameManager.Instance.PlayerOneColor)
+        if(GameManager.Instance.IsSingleplayer)
         {
-            _posX = 0;
-            _posY = 0;
-        }
-        else
-        {
-            _posX = _maxX;
-            _posY = _maxY;
+            if (GameManager.Instance.WhosTurn == GameManager.Instance.PlayerOneColor)
+            {
+                _posX = 0;
+                _posY = 0;
+            }
+            else
+            {
+                _posX = _maxX;
+                _posY = _maxY;
+            }
         }
 
         MoveCursor(_posX, _posY);

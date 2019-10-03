@@ -162,6 +162,9 @@ public class StartMenu : MonoBehaviour
                     GameManager.Instance.PlayerTwoColor = GameManager.Instance.PlayerOneColor;
                     GameManager.Instance.PlayerOneColor = (Character.CharacterColors)Enum.Parse(typeof(Character.CharacterColors), _prams["PlayerOneColor"].ToString());
                     GameManager.Instance._playersDictionary.Add(eventObj.getData().getRoomOwner(), GameManager.Instance.PlayerOneColor);
+                    var _maxX = GameManager.Instance.GetBoard.GetWidth - 1;
+                    var _maxY = GameManager.Instance.GetBoard.GetHeight - 1;
+                    Cursor.cursorInstance.MoveCursor(_maxX, _maxY);
                 }
 
                 Debug.Log("Player one color - " + GameManager.Instance.PlayerOneColor);
