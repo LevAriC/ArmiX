@@ -361,17 +361,17 @@ public class GameManager : MonoBehaviour
                         if (alive.Key == check.Key.getCharacterID.ToString())
                         {
                             isExist = true;
+                            //New Movement
                             string tmpXY = alive.Value.ToString();
-                            Debug.Log("tmpXY - " + tmpXY);
                             char[] delimiterChars = { '(', ',', ')'};
                             string[] newXY = tmpXY.Split(delimiterChars);
-                            Debug.Log("newXY - " + newXY);
                             var newX = int.Parse(newXY[1]);
-                            Debug.Log("newX - " + newX);
                             var newY = int.Parse(newXY[2]);
-                            Debug.Log("newY - " + newY);
                             _gameBoard.SetCharacterOnBoard(newX, newY, check.Key);
                             _characterDictionary[check.Key] = new Vector2Int(newX, newY);
+                            //New Health
+                            var newHealth = _characterDictionaryTmp[check.Key.getCharacterID.ToString() + " health"].ToString();
+                            check.Key.remainingHealth = int.Parse(newHealth);
                         }
                     }
                     if (!isExist)
