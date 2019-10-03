@@ -353,7 +353,7 @@ public class GameManager : MonoBehaviour
             Dictionary<string, object> _characterDictionaryTmp = (Dictionary<string,object>)MiniJSON.Json.Deserialize(_Move.getMoveData());
             if (_characterDictionaryTmp != null)
             {
-                foreach (var check in _characterDictionary)
+                foreach (var check in _characterDictionary.ToList())
                 {
                     var isExist = false;
                     foreach (var alive in _characterDictionaryTmp)
@@ -366,9 +366,9 @@ public class GameManager : MonoBehaviour
                             char[] delimiterChars = { '(', ',', ')'};
                             string[] newXY = tmpXY.Split(delimiterChars);
                             Debug.Log("newXY - " + newXY);
-                            var newX = int.Parse(newXY[0]);
+                            var newX = int.Parse(newXY[1]);
                             Debug.Log("newX - " + newX);
-                            var newY = int.Parse(newXY[1]);
+                            var newY = int.Parse(newXY[2]);
                             Debug.Log("newY - " + newY);
                             _gameBoard.SetCharacterOnBoard(newX, newY, check.Key);
                             _characterDictionary[check.Key] = new Vector2Int(newX, newY);
