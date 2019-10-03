@@ -64,7 +64,6 @@ public class GameManager : MonoBehaviour
         _restartButton.gameObject.SetActive(false);
         GameInit();
     }
-
     protected void Start()
     {
         _gameBoard.SurfaceInit(transform);
@@ -75,7 +74,6 @@ public class GameManager : MonoBehaviour
         StartCoroutine(PlayersChoosingColor());
         SetMusicVolume(20);
     }
-
     protected void Update()
     {
         if(GameStarted)
@@ -98,6 +96,7 @@ public class GameManager : MonoBehaviour
         }
 
     }
+
     private void GameInit()
     {
         WhosTurn = Character.CharacterColors.None;
@@ -192,7 +191,6 @@ public class GameManager : MonoBehaviour
 
         return tmpList;
     }
-
     private void TurnManagement()
     {
         if (GUI.stateChanged)
@@ -248,7 +246,6 @@ public class GameManager : MonoBehaviour
 
         GUI.stateChanged = false;
     } 
-
     private bool CheckGameIsOver(bool player)
     {
         if (player)
@@ -261,7 +258,6 @@ public class GameManager : MonoBehaviour
 
         return false;
     }
-
     public void RestartGame()
     {
         GameInit();
@@ -275,7 +271,6 @@ public class GameManager : MonoBehaviour
         SpawnCharacter();
         _restartButton.gameObject.SetActive(false); 
     }
-
     public bool IsCharacterHere()
     {
         _whereClicked = Cursor.cursorInstance.GetCoords;
@@ -298,7 +293,6 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-
     private void OnCharacterOverwatchingTile()
     {
         _gameBoard.SetTextureOnTiles(_whereClicked.x, _whereClicked.y, _tilesTypes[3]);
@@ -312,12 +306,10 @@ public class GameManager : MonoBehaviour
         //    }
         //}
     }
-
     public void SetMusicVolume(int volume)
     {
         _gameMusic.volume = volume / 100f;
     }
-
     public void EndTurn()
     {
         GUI.stateChanged = true;
@@ -336,25 +328,34 @@ public class GameManager : MonoBehaviour
 
     private void SendingJSONToServer()
     {
-        //Dictionary<Vector2Int, object> _toSend = new Dictionary<string, object>();
-        //foreach (KeyValuePair<Character, Vector2Int> alive in _characterDictionary)
-        //{
-        //    _toSend.Add(alive.Key, alive.Value);
-        //}
+        Dictionary<string, object> _toSend = new Dictionary<string, object>();
+        foreach (KeyValuePair<Character, Vector2Int> alive in _characterDictionary)
+        {
+            _toSend.Add(alive.Key.getCharacterID.ToString(), alive.Value.ToString());
+        }
 
         string _send = MiniJSON.Json.Serialize(_characterDictionary);
-        WarpClient.GetInstance().sendMove(_send);
     }
 
     private void OnMoveCompleted(MoveEvent _Move)
     {
         if (_Move.getSender() != UserId)
         {
-            Dictionary<Character,Vector2Int> _characterDictionaryTmp = (Dictionary<Character,Vector2Int>)MiniJSON.Json.Deserialize(_Move.getMoveData());
+            Dictionary<string, object> _characterDictionaryTmp = (Dictionary<string,object>)MiniJSON.Json.Deserialize(_Move.getMoveData());
             if (_characterDictionaryTmp != null)
             {
-                _characterDictionary = _characterDictionaryTmp;
-                //SendingJSONToServer();
+                foreach (var check in _characterDictionary)
+                {
+                    var isExist = false;
+                    foreach (var alive in _characterDictionaryTmp)
+                    {
+                        if (alive.Key == check.Key.getCharacterID.ToString())
+                            isExist = true;
+                    }
+                    if (!isExist)
+                        check.Key.isDead = true;
+                }
+                //_characterDictionary = _characterDictionaryTmp;
             }
             else
             {

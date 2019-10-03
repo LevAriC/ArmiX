@@ -33,6 +33,7 @@ public class Character : MonoBehaviour
     public bool attackedThisTurn { get; set; }
     public bool overwatchedThisTurn { get; set; }
     public int remainingHealth { get; set; }
+    public bool isDead { get; set; }
     #endregion
 
     #region ID
@@ -40,7 +41,6 @@ public class Character : MonoBehaviour
     public bool IsPlayerOne { get; set; }
     private static int _characterID = 0;
     public int getCharacterID { get; private set; }
-    public bool isDead { get; private set; }
     #endregion
 
     #region Graphics
