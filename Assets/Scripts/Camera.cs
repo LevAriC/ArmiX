@@ -8,6 +8,7 @@ public class Camera : MonoBehaviour
     [SerializeField] float _lerp;
     private Vector3 _prevPos;
     private bool _prevTurn;
+    private bool _multiplayer;
     private Character.CharacterColors _prevColor;
 
     private float _x;
@@ -37,8 +38,8 @@ public class Camera : MonoBehaviour
     }
     protected void Update()
     {
-        //if(GameManager.Instance.IsSingleplayer)
-        //{
+        if (GameManager.Instance.IsSingleplayer)
+        {
             if (_prevColor != GameManager.Instance.WhosTurn)
             {
                 _prevTurn = !_prevTurn;
@@ -46,20 +47,38 @@ public class Camera : MonoBehaviour
                 _z = -_z;
                 _zz = -_zz;
             }
-
-            if(GUI.menuInstance.attackRoutine)
+        }
+        else
+        {
+            if(_multiplayer)
             {
-                transform.LookAt(target.position);
+                if (GameManager.Instance.GameStarted)
+                {
+                    foreach (var player in GameManager.Instance._playersDictionary)
+                    {
+                        if (player.Key == GameManager.Instance.UserId && player.Value == GameManager.Instance.PlayerTwoColor)
+                        {
+                            _z = -_z;
+                            _zz = -_zz;
+                        }
+                    }
+                }
+                _multiplayer = false;
             }
+        }
 
-            else
-            {
-                transform.position = target.position + new Vector3(_x, _y, _z);
-                //transform.position = Vector3.Lerp(prevPos, target.position + new Vector3(_x, _y, _z), _lerp);
-                transform.LookAt(LookHere());
-                _prevPos = transform.position;
-            }
-        //}
+        if (GUI.menuInstance.attackRoutine)
+        {
+            transform.LookAt(target.position);
+        }
+
+        else
+        {
+            transform.position = target.position + new Vector3(_x, _y, _z);
+            //transform.position = Vector3.Lerp(prevPos, target.position + new Vector3(_x, _y, _z), _lerp);
+            transform.LookAt(LookHere());
+            _prevPos = transform.position;
+        }
     }
 
     private Vector3 LookHere()
@@ -71,8 +90,13 @@ public class Camera : MonoBehaviour
     {
         _prevColor = GameManager.Instance.WhosTurn;
         _prevTurn = GameManager.Instance.WhosTurn == GameManager.Instance.PlayerOneColor ? false : true;
-        _z = _prevTurn ? _z : -_z;
-        _zz = _prevTurn ? _zz : -_zz;
+        if (GameManager.Instance.IsSingleplayer)
+        {
+            _z = _prevTurn ? _z : -_z;
+            _zz = _prevTurn ? _zz : -_zz;
+        }
+        else
+            _multiplayer = true;
     }
 
     private IEnumerator PlayersChoosingColor()
