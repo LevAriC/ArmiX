@@ -6,10 +6,13 @@ public class Tile : MonoBehaviour
 {
     [SerializeField] GameObject _texture;
     private MeshRenderer _myRend;
+    private Material[] _originalMaterial;
+
 
     protected void Start()
     {
         _myRend = _texture.GetComponent<MeshRenderer>();
+        _originalMaterial = _myRend.materials;
     }
 
     public void SetOnTile(Character character)
@@ -21,10 +24,13 @@ public class Tile : MonoBehaviour
     {
         var tile = Instantiate(newTexture);
         tile.gameObject.SetActive(false);
-        Material[] materials = _myRend.materials;
         MeshRenderer tmp = tile._texture.GetComponent<MeshRenderer>();
         Material[] tmpmat = tmp.materials;
-        //materials[0] = newTexture._texture.GetComponent<MeshRenderer>().materials;
         _myRend.materials = tmpmat;
+    }
+
+    public void RevertTileToDefault()
+    {
+        _myRend.materials = _originalMaterial;
     }
 }

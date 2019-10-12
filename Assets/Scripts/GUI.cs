@@ -20,6 +20,7 @@ public class GUI : MonoBehaviour
     [SerializeField] Button _overwatchButton;
 
     public string setTurnText { set { _turnText.GetComponent<Text>().text = value; } }
+    public Combat getCombatLogic { get { return _combatLogic; } }
 
     #region Boolians
     public bool menuOpen { get; private set; }
@@ -60,37 +61,52 @@ public class GUI : MonoBehaviour
 
     private void OnMoveClicked()
     {
-        if (!GameManager.Instance._characterClicked.movedThisTurn)
+        if(!GameManager.Instance._characterClicked.overwatchedThisTurn)
         {
-            moveRoutine = true;
-            ToggleMenu(false);
-            StartCoroutine(WaitUntilChosen());
+            if (!GameManager.Instance._characterClicked.movedThisTurn)
+            {
+                moveRoutine = true;
+                ToggleMenu(false);
+                StartCoroutine(WaitUntilChosen());
+            }
+            else
+                RunPopup("Already Moved This Turn");
         }
         else
-            RunPopup("Already Moved This Turn");
+            RunPopup("Cannot Move While Overwatching");
     }
     private void OnAttackClicked()
     {
-        if (!GameManager.Instance._characterClicked.attackedThisTurn)
+        if (!GameManager.Instance._characterClicked.overwatchedThisTurn)
         {
-            attackRoutine = true;
-            ToggleMenu(false);
-            StartCoroutine(WaitUntilChosen());
-            AttackPressedEvent?.Invoke();
+            if (!GameManager.Instance._characterClicked.attackedThisTurn)
+            {
+                attackRoutine = true;
+                ToggleMenu(false);
+                StartCoroutine(WaitUntilChosen());
+                AttackPressedEvent?.Invoke();
+            }
+            else
+                RunPopup("Already Attacked This Turn");
         }
         else
-            RunPopup("Already Attacked This Turn");
+            RunPopup("Cannot Attack While Overwatching");
     }
     private void OnOverwatchClicked()
     {
-        if (!GameManager.Instance._characterClicked.overwatchedThisTurn)
+        if (!GameManager.Instance._characterClicked.attackedThisTurn)
         {
-            overwatchRoutine = true;
-            ToggleMenu(false);
-            StartCoroutine(WaitUntilChosen());
+            if (!GameManager.Instance._characterClicked.overwatchedThisTurn)
+            {
+                overwatchRoutine = true;
+                ToggleMenu(false);
+                StartCoroutine(WaitUntilChosen());
+            }
+            else
+                RunPopup("Already Overwatching This Turn");
         }
         else
-            RunPopup("Already Overwatching");
+            RunPopup("Cannot Overwatch After Attacking");
     }
 
     private void RoutinesReset()

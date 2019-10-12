@@ -47,9 +47,12 @@ public class Surface : MonoBehaviour
         _tilesOnBoard[xPos][yPos].SetOnTile(character);
     }
 
-    public void SetTextureOnTiles(int xPos, int yPos, Tile newTexture)
+    public void SetTextureOnTiles(int xPos, int yPos, Tile newTexture = null)
     {
-        _tilesOnBoard[xPos][yPos].ChangeTileTexture(newTexture);
+        if (newTexture)
+            _tilesOnBoard[xPos][yPos].ChangeTileTexture(newTexture);
+        else
+            _tilesOnBoard[xPos][yPos].RevertTileToDefault();
     }
 
     public Tile GetFromBoard(int xPos, int yPos)

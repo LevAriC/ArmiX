@@ -21,7 +21,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] int _charactersPerPlayer;
 
     #region Surface
-    public Dictionary<Character,Vector2Int> _characterDictionary { get; private set; }
+    public Dictionary<Character, Vector2Int> _characterDictionary { get; private set; }
+    public Dictionary<Character, Vector2Int> _overwatchDictionary { get; private set; }
     public Surface GetBoard { get { return _gameBoard; } }
     #endregion
 
@@ -56,7 +57,8 @@ public class GameManager : MonoBehaviour
         Instance = this;
         ChoosingColor = true;
 
-        _characterDictionary = new Dictionary<Character,Vector2Int>();
+        _characterDictionary = new Dictionary<Character, Vector2Int>();
+        _overwatchDictionary = new Dictionary<Character, Vector2Int>();
         _playersDictionary = new Dictionary<string, Character.CharacterColors>();
 
         PlayerOneColor = Character.CharacterColors.None;
@@ -97,7 +99,6 @@ public class GameManager : MonoBehaviour
         }
 
     }
-
     private void GameInit()
     {
         WhosTurn = Character.CharacterColors.None;
@@ -231,6 +232,13 @@ public class GameManager : MonoBehaviour
                 {
                     WhosTurn = WhosTurn == PlayerTwoColor ? PlayerOneColor : PlayerTwoColor;
                     SingleplayerUserID();
+                    foreach (var remove in _overwatchDictionary.ToList())
+                    {
+                        if (remove.Key.MyColor == WhosTurn)
+                            _overwatchDictionary.Remove(remove.Key);
+                        else
+                            _gameBoard.SetTextureOnTiles(remove.Value.x, remove.Value.y);
+                    }
                 }
                 else
                 {
@@ -293,22 +301,38 @@ public class GameManager : MonoBehaviour
         {
             if (alive.Key.getCharacterID == _characterClicked.getCharacterID)
             {
-                _characterDictionary[alive.Key] = new Vector2Int(_whereClicked.x, _whereClicked.y);
+                Vector2Int pos = new Vector2Int(_whereClicked.x, _whereClicked.y);
+                _characterDictionary[alive.Key] = pos;
+                foreach (var overwatch in _overwatchDictionary)
+                {
+                    if(overwatch.Value == pos)
+                    {
+                        if(_characterDictionary.ContainsKey(overwatch.Key))
+                        {
+                            var defenderPos = alive.Value;
+                            var attackerPos = _characterDictionary[overwatch.Key];
+                            int distance = (int)Math.Floor(Math.Sqrt(Math.Abs(attackerPos.x - defenderPos.x)) + Math.Sqrt(Math.Abs(attackerPos.y - defenderPos.y)));
+
+                            var didHit = GUI.menuInstance.getCombatLogic.AttackEnemy(overwatch.Key, alive.Key, distance);
+                            if (didHit)
+                            {
+                                overwatch.Key.myAnimator.SetTrigger("isTargetAcquired");
+                                alive.Key.myAnimator.SetTrigger("isHit");
+                                GUI.menuInstance.RunPopup("You Have Been Planked!");
+                                GUI.stateChanged = true;
+                            }
+                            else
+                                GUI.menuInstance.RunPopup("Phew! Dodged a Bullet");
+                        }
+                    }
+                }
             }
         }
     }
     private void OnCharacterOverwatchingTile()
     {
         _gameBoard.SetTextureOnTiles(_whereClicked.x, _whereClicked.y, _tilesTypes[3]);
-
-        //foreach (KeyValuePair<Character, Vector2Int> alive in _characterDictionary)
-        //{
-        //    if (alive.Value.getCharacterID == _characterClicked.getCharacterID)
-        //    {
-        //        _characterDictionary.Remove(alive.Key);
-        //        _characterDictionary.Add(new Vector2Int(_whereClicked.x, _whereClicked.y), _characterClicked);
-        //    }
-        //}
+        _overwatchDictionary.Add(_characterClicked, new Vector2Int(_whereClicked.x, _whereClicked.y));
     }
     public void SetMusicVolume(int volume)
     {
@@ -323,27 +347,27 @@ public class GameManager : MonoBehaviour
     }
 
     #region Multiplayer
-
     private void OnGameStarted(string _Sender, string _RoomId, string _NextTurn)
     {
         GameStarted = true;
         WhosTurn = PlayerOneColor;
         Debug.Log("_NextTurn - " + _NextTurn);
     }
-
     private void SendingJSONToServer()
     {
         Dictionary<string, object> _toSend = new Dictionary<string, object>();
-        foreach (KeyValuePair<Character, Vector2Int> alive in _characterDictionary)
+        foreach (var alive in _characterDictionary)
         {
             _toSend.Add(alive.Key.getCharacterID.ToString(), alive.Value.ToString());
             _toSend.Add(alive.Key.getCharacterID.ToString() + " health", alive.Key.remainingHealth.ToString());
         }
-
+        foreach (var overwatch in _overwatchDictionary)
+        {
+            _toSend.Add(overwatch.Key.getCharacterID.ToString() + " overwatch", overwatch.Value.ToString());
+        }
         string _send = MiniJSON.Json.Serialize(_toSend);
         WarpClient.GetInstance().sendMove(_send);
     }
-
     private void OnMoveCompleted(MoveEvent _Move)
     {
         var sender = _Move.getSender();
@@ -351,6 +375,8 @@ public class GameManager : MonoBehaviour
         if (_Move.getSender() != UserId)
         {
             Dictionary<string, object> _characterDictionaryTmp = (Dictionary<string,object>)MiniJSON.Json.Deserialize(_Move.getMoveData());
+            Dictionary<Character, Vector2Int> _overwatchDictionaryTmp = new Dictionary<Character, Vector2Int>();
+
             if (_characterDictionaryTmp != null)
             {
                 foreach (var check in _characterDictionary.ToList())
@@ -361,6 +387,7 @@ public class GameManager : MonoBehaviour
                         if (alive.Key == check.Key.getCharacterID.ToString())
                         {
                             isExist = true;
+                            
                             //New Movement
                             string tmpXY = alive.Value.ToString();
                             char[] delimiterChars = { '(', ',', ')'};
@@ -369,14 +396,27 @@ public class GameManager : MonoBehaviour
                             var newY = int.Parse(newXY[2]);
                             _gameBoard.SetCharacterOnBoard(newX, newY, check.Key);
                             _characterDictionary[check.Key] = new Vector2Int(newX, newY);
+                            
                             //New Health
                             var newHealth = _characterDictionaryTmp[check.Key.getCharacterID.ToString() + " health"].ToString();
                             check.Key.remainingHealth = int.Parse(newHealth);
+
+                            //New Overwatch
+                            if (_characterDictionaryTmp.ContainsKey(check.Key.getCharacterID.ToString() + " overwatch"))
+                            {
+                                var newOverwatch = _characterDictionaryTmp[check.Key.getCharacterID.ToString() + " overwatch"].ToString();
+                                string[] overwatchXY = newOverwatch.Split(delimiterChars);
+                                var overwatchX = int.Parse(overwatchXY[1]);
+                                var overwatchY = int.Parse(overwatchXY[2]);
+                                _overwatchDictionaryTmp.Add(check.Key, new Vector2Int(overwatchX, overwatchY));
+                            }
                         }
                     }
+
                     if (!isExist)
                         check.Key.isDead = true;
                 }
+                _overwatchDictionary = _overwatchDictionaryTmp;
             }
             else
             {
@@ -389,19 +429,16 @@ public class GameManager : MonoBehaviour
         GUI.stateChanged = true;
         _reload = true;
     }
-
     private void OnGameStopped(string _Sender, string _RoomId)
     {
         Debug.Log("Game Over");
     }
-
     private void OnEnable()
     {
         Listener.OnGameStarted += OnGameStarted;
         Listener.OnMoveCompleted += OnMoveCompleted;
         Listener.OnGameStopped += OnGameStopped;
     }
-
     private void OnDisable()
     {
         Listener.OnGameStarted -= OnGameStarted;
@@ -410,4 +447,3 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 }
-
