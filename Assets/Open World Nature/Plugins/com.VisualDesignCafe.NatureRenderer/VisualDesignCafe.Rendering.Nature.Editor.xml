@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>VisualDesignCafe.Rendering.Nature.Editor</name>
+    </assembly>
+    <members>
+        <member name="M:VisualDesignCafe.Rendering.Nature.Editor.NatureRendererEditor.DrawSplitter">
+            <summary>
+            Draws a horizontal split line.
+            </summary>
+        </member>
+    </members>
+</doc>
