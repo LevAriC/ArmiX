@@ -47,7 +47,27 @@ public class Surface : MonoBehaviour
     {
         objectToPlace.position = _tilesOnBoard[xPos][yPos].transform.position;
     }
+    public void ToggleArea(int xPos, int yPos, int distance, bool toggle)
+    {
+        for (var i = 1; i < distance; i++)
+        {
+            if (xPos + i < _width - 1) _tilesOnBoard[xPos + i][yPos].ToggleTexture(toggle);
+            if (yPos + i < _height - 1) _tilesOnBoard[xPos][yPos + i].ToggleTexture(toggle);
+            //if (originX - restrict > 0) curMinX = originX - distance;
+            //if (originY - restrict > 0) curMinY = originY - distance;
+        }
+    }
 
+    public void RevertBoardAreaToDefault()
+    {
+        for (int i = 0; i < _height; i++)
+        {
+            for (int j = 0; j < _width; j++)
+            {
+                _tilesOnBoard[i][j].ToggleTexture(false);
+            }
+        }
+    }
     public void SetTextureOnTile(int xPos, int yPos, Tile newTexture = null)
     {
         if (newTexture)

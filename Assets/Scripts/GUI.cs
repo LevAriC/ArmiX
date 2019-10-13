@@ -67,6 +67,7 @@ public class GUI : MonoBehaviour
             {
                 moveRoutine = true;
                 ToggleMenu(false);
+                GameManager.Instance.GetBoard.ToggleArea(GameManager.Instance._whereClicked.x, GameManager.Instance._whereClicked.y, GameManager.Instance._characterClicked.getMovement, true);
                 StartCoroutine(WaitUntilChosen());
             }
             else
