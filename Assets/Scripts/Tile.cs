@@ -15,11 +15,6 @@ public class Tile : MonoBehaviour
         _originalMaterial = _myRend.materials;
     }
 
-    public void SetOnTile(Character character)
-    {
-        character.transform.position = transform.position;
-    }
-
     public void ChangeTileTexture(Tile newTexture)
     {
         var tile = Instantiate(newTexture);
@@ -27,10 +22,16 @@ public class Tile : MonoBehaviour
         MeshRenderer tmp = tile._texture.GetComponent<MeshRenderer>();
         Material[] tmpmat = tmp.materials;
         _myRend.materials = tmpmat;
+        ToggleTexture(true);
     }
 
     public void RevertTileToDefault()
     {
         _myRend.materials = _originalMaterial;
+        ToggleTexture(false);
+    }
+    public void ToggleTexture(bool toggle)
+    {
+        _texture.gameObject.SetActive(toggle);
     }
 }

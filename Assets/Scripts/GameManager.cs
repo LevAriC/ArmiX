@@ -115,14 +115,14 @@ public class GameManager : MonoBehaviour
             if (i < _charactersPerPlayer)
             {
                 newCharacter.IsPlayerOne = true;
-                _gameBoard.SetCharacterOnBoard(i, 0, newCharacter);
+                _gameBoard.SetObjectOnTile(i, 0, newCharacter.transform);
                 _characterDictionary.Add(newCharacter, new Vector2Int(i, 0));
             }
             else
             {
                 newCharacter.IsPlayerOne = false;
                 newCharacter.transform.rotation = Quaternion.Euler(0, 180, 0);
-                _gameBoard.SetCharacterOnBoard(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1, newCharacter);
+                _gameBoard.SetObjectOnTile(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1, newCharacter.transform);
                 _characterDictionary.Add(newCharacter, new Vector2Int(_gameBoard.GetWidth - (i % _charactersPerPlayer) - 1, _gameBoard.GetHeight - 1));
             }
         }
@@ -237,7 +237,7 @@ public class GameManager : MonoBehaviour
                         if (remove.Key.MyColor == WhosTurn)
                             _overwatchDictionary.Remove(remove.Key);
                         else
-                            _gameBoard.SetTextureOnTiles(remove.Value.x, remove.Value.y);
+                            _gameBoard.SetTextureOnTile(remove.Value.x, remove.Value.y);
                     }
                 }
                 else
@@ -295,7 +295,7 @@ public class GameManager : MonoBehaviour
     }
     private void OnPlayerMoveCharacter()
     {
-        _gameBoard.SetCharacterOnBoard(_whereClicked.x, _whereClicked.y, _characterClicked);
+        _gameBoard.SetObjectOnTile(_whereClicked.x, _whereClicked.y, _characterClicked.transform);
 
         foreach (var alive in _characterDictionary.ToList())
         {
@@ -331,7 +331,7 @@ public class GameManager : MonoBehaviour
     }
     private void OnCharacterOverwatchingTile()
     {
-        _gameBoard.SetTextureOnTiles(_whereClicked.x, _whereClicked.y, _tilesTypes[3]);
+        _gameBoard.SetTextureOnTile(_whereClicked.x, _whereClicked.y, _tilesTypes[3]);
         _overwatchDictionary.Add(_characterClicked, new Vector2Int(_whereClicked.x, _whereClicked.y));
     }
     public void SetMusicVolume(int volume)
@@ -394,7 +394,7 @@ public class GameManager : MonoBehaviour
                             string[] newXY = tmpXY.Split(delimiterChars);
                             var newX = int.Parse(newXY[1]);
                             var newY = int.Parse(newXY[2]);
-                            _gameBoard.SetCharacterOnBoard(newX, newY, check.Key);
+                            _gameBoard.SetObjectOnTile(newX, newY, check.Key.transform);
                             _characterDictionary[check.Key] = new Vector2Int(newX, newY);
                             
                             //New Health

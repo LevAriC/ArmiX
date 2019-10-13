@@ -38,16 +38,17 @@ public class Surface : MonoBehaviour
                 _tilesOnBoard[i].Add(newTile);
 
                 newTile.transform.SetParent(_tileContainer);
+                newTile.ToggleTexture(false);
             }
         }
     }
 
-    public void SetCharacterOnBoard(int xPos, int yPos, Character character)
+    public void SetObjectOnTile(int xPos, int yPos, Transform objectToPlace)
     {
-        _tilesOnBoard[xPos][yPos].SetOnTile(character);
+        objectToPlace.position = _tilesOnBoard[xPos][yPos].transform.position;
     }
 
-    public void SetTextureOnTiles(int xPos, int yPos, Tile newTexture = null)
+    public void SetTextureOnTile(int xPos, int yPos, Tile newTexture = null)
     {
         if (newTexture)
             _tilesOnBoard[xPos][yPos].ChangeTileTexture(newTexture);
