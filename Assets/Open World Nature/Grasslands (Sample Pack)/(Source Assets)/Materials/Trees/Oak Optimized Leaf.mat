@@ -116,7 +116,7 @@ Material:
     - _AmbientOcclusion: 0
     - _BakedMask: 1
     - _BumpScale: 1
-    - _Cutoff: 0.464
+    - _Cutoff: 0.256
     - _DebugGust: 0
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -125,25 +125,25 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _GradientBrightness: 1
-    - _Hue: -0.153
-    - _Lightness: -0.128
+    - _Hue: -0.138
+    - _Lightness: -0.251
     - _MaxWindStrength: 0.1164738
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Saturation: 0.177
+    - _Saturation: 0.126
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _StiffnessVariation: 0
-    - _TransAmbient: 0.76
-    - _TransDirect: 1
-    - _TransNormalDistortion: 0.242
-    - _TransScattering: 26.4
-    - _TransShadow: 0.887
-    - _Translucency: 16.78
+    - _TransAmbient: 0.85
+    - _TransDirect: 0.5
+    - _TransNormalDistortion: 0.1
+    - _TransScattering: 71.3
+    - _TransShadow: 1
+    - _Translucency: 12.33
     - _UVMask: 0
     - _UVSec: 0
     - _UseLegacyVertexColors: 0
@@ -157,7 +157,7 @@ Material:
     - _Color0: {r: 0.4980389, g: 0.4980389, b: 0.4980389, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _HueVariation: {r: 1, g: 0.5, b: 0, a: 0.184}
-    - _OcclusionRemap: {r: 0, g: 0.54041994, b: 0, a: 0}
+    - _OcclusionRemap: {r: 0.74392456, g: 0.99999994, b: 0, a: 0}
     - _Shiver: {r: 1.289, g: 0.228, b: 1, a: 1}
     - _Tint: {r: 1, g: 1, b: 1, a: 0}
     - _TranslucencyColor: {r: 0, g: 0, b: 0, a: 0}
